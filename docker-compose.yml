@@ -9,6 +9,11 @@ services:
       # Overrides whatever's in .env — the DB must live in the mounted /app/data
       # volume, not the image's writable layer, or it's lost on every recreate.
       IRCAL_DATABASE_URL: sqlite:////app/data/iracing_calendar.db
+    extra_hosts:
+      # Lets the container resolve the host machine (running Postfix on :25)
+      # as host.docker.internal instead of localhost, which inside the
+      # container refers to the container itself.
+      - "host.docker.internal:host-gateway"
     volumes:
       - ircal-data:/app/data
       - ircal-cache:/app/cache
