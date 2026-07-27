@@ -117,11 +117,22 @@ a:hover { color: var(--green-dark); }
   padding: 0.75rem 0;
   margin-bottom: 1.5rem;
   display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.control-row {
+  display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
   align-items: center;
   justify-content: space-between;
 }
+
+.filter-input { width: 100%; font-size: 0.88rem; }
+
+.no-matches { color: var(--ink-faint); font-size: 0.88rem; padding: 0.5rem 0.1rem; }
+.no-matches[hidden] { display: none; }
 
 .tabs {
   display: inline-flex;
@@ -390,6 +401,26 @@ select, input[type="text"], input[type="email"] {
 .detail-block p { margin: 0.5rem 0; }
 .detail-block label { display: block; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.2rem; }
 .detail-block input[type="text"], .detail-block input[type="email"] { width: 100%; max-width: 22rem; }
+
+.detail-block.top-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.top-details .detail-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  flex: 1 1 22rem;
+}
+
+.top-details .detail-fields p { margin: 0; }
+.top-details .detail-fields input { width: 100%; min-width: 12rem; max-width: 16rem; }
+.top-details button[type="submit"] { flex-shrink: 0; }
 
 button[type="submit"] {
   font-family: var(--sans);

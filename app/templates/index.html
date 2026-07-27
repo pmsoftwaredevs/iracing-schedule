@@ -11,19 +11,33 @@
 </div>
 
 <form method="post" action="{{ action_url }}" id="selection-form">
-  <div class="control-bar">
-    <div class="tabs" role="tablist">
-      <button type="button" class="tab-btn active" data-tab="championships">Championships</button>
-      <button type="button" class="tab-btn" data-tab="events">Special Events</button>
+  <div class="detail-block top-details">
+    <div class="detail-fields">
+      <p><label for="name-input">Name</label><input id="name-input" type="text" name="name" value="{{ existing_user.name if existing_user else '' }}" required></p>
+      <p><label for="email-input">Email</label><input id="email-input" type="email" name="email" value="{{ existing_user.email if existing_user else '' }}" required></p>
     </div>
-    <div class="tz-picker">
-      <label>Your timezone
-        <select name="timezone" id="timezone-select">
-          {% for tz in timezones %}
-          <option value="{{ tz }}" {% if tz == selected_timezone %}selected{% endif %}>{{ tz }}</option>
-          {% endfor %}
-        </select>
-      </label>
+    <button type="submit">{% if existing_user %}Save changes{% else %}Create my calendar{% endif %}</button>
+  </div>
+
+  <div class="control-bar">
+    <div class="control-row">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="championships">Championships</button>
+        <button type="button" class="tab-btn" data-tab="events">Special Events</button>
+      </div>
+      <div class="tz-picker">
+        <label>Your timezone
+          <select name="timezone" id="timezone-select">
+            {% for tz in timezones %}
+            <option value="{{ tz }}" {% if tz == selected_timezone %}selected{% endif %}>{{ tz }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="control-row">
+      <input type="text" id="filter-input" class="filter-input" autocomplete="off"
+             placeholder="Filter championships and special events…">
     </div>
   </div>
 
@@ -93,6 +107,7 @@
       {% endfor %}
     </div>
     {% endfor %}
+    <p class="no-matches" hidden>No championships match your search.</p>
   </div>
 
   <div class="tab-panel" data-panel="events" hidden>
@@ -124,15 +139,8 @@
     {% else %}
     <p class="gmt-hint">No special events announced right now.</p>
     {% endif %}
+    <p class="no-matches" hidden>No special events match your search.</p>
   </div>
-
-  <div class="detail-block">
-    <h2>Your details</h2>
-    <p><label for="name-input">Name</label><input id="name-input" type="text" name="name" value="{{ existing_user.name if existing_user else '' }}" required></p>
-    <p><label for="email-input">Email</label><input id="email-input" type="email" name="email" value="{{ existing_user.email if existing_user else '' }}" required></p>
-  </div>
-
-  <button type="submit">{% if existing_user %}Save changes{% else %}Create my calendar{% endif %}</button>
 </form>
 
 <template id="slot-row-template">
@@ -277,6 +285,32 @@ document.querySelectorAll('.slot-row').forEach(function (row) {
 document.getElementById('timezone-select').addEventListener('change', updateAllSlotRows);
 
 updateAllSlotRows();
+
+// ---- Filter championships / special events by name ----
+var filterInput = document.getElementById('filter-input');
+function applyFilter() {
+  var query = filterInput.value.trim().toLowerCase();
+  document.querySelectorAll('.tab-panel').forEach(function (panel) {
+    var cards = panel.querySelectorAll('.series-card');
+    var anyVisible = false;
+    cards.forEach(function (card) {
+      var nameEl = card.querySelector('.series-name');
+      var name = nameEl ? nameEl.textContent.toLowerCase() : '';
+      var match = !query || name.indexOf(query) !== -1;
+      card.hidden = !match;
+      if (match) anyVisible = true;
+    });
+    panel.querySelectorAll('.group-section').forEach(function (group) {
+      var groupHasVisible = Array.prototype.some.call(group.querySelectorAll('.series-card'), function (c) { return !c.hidden; });
+      group.hidden = !groupHasVisible;
+    });
+    var emptyMsg = panel.querySelector('.no-matches');
+    if (emptyMsg) {
+      emptyMsg.hidden = !query || anyVisible || cards.length === 0;
+    }
+  });
+}
+filterInput.addEventListener('input', applyFilter);
 
 {% if not existing_user %}
 // Default the timezone dropdown to the browser's detected zone for new signups —
