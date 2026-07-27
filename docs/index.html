@@ -69,6 +69,10 @@
   <div class="tab-panel" data-panel="events" id="events-panel" hidden></div>
 
   <div class="ad-slot" id="ad-slot" hidden></div>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="copyright-year">2026</span> PMSoftwareDevs. This is an unofficial, fan-made tool and is not affiliated with, endorsed by, or sponsored by iRacing.com Motorsport Simulations, LLC. &ldquo;iRacing&rdquo; and associated logos are trademarks or registered trademarks of iRacing.com Motorsport Simulations, LLC. All other trademarks are property of their respective owners.</p>
+  </footer>
 </div>
 
 <template id="series-card-template">
@@ -118,5 +122,6 @@
 </template>
 
 <script type="module" src="app.js"></script>
+<script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

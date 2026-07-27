@@ -614,6 +614,17 @@ code {
 
 .ad-slot[hidden] { display: none; }
 
+/* ---- Footer ---- */
+
+.site-footer {
+  margin: 2rem 0 0;
+  padding: 1rem 0.1rem 0.5rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 560px) {
   .schedule-list li { grid-template-columns: 2.4rem 5.5rem 1fr; font-size: 0.78rem; }
   .masthead h1 { font-size: 1.55rem; }
