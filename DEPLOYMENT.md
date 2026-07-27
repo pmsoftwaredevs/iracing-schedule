@@ -47,7 +47,7 @@ aren't sensitive; they end up in public page source once deployed either way):
   (`ca-pub-...`). Leave unset to render the site with no ad slot at all.
 
 Also update `worker/wrangler.toml`'s `PAGES_BASE_URL` to your actual Pages URL
-(e.g. `https://<you>.github.io/iRacing_calendar`) — the Worker fetches
+(e.g. `https://<you>.github.io/<repo-name>`) — the Worker fetches
 `data/manifest.json` and `data/{season}.json` live from there on every
 request (see ARCHITECTURE.md), so it needs to know where "there" is.
 

@@ -8,4 +8,4 @@ workers_dev = true
 # with `--var PAGES_BASE_URL:...` or for local dev with `wrangler dev --var
 # PAGES_BASE_URL:http://localhost:<port>` pointed at a locally-served docs/.
 [vars]
-PAGES_BASE_URL = "https://REPLACE-WITH-YOUR-GITHUB-USERNAME.github.io/iRacing_calendar"
+PAGES_BASE_URL = "https://pmsoftwaredevs.github.io/iracing-schedule"
