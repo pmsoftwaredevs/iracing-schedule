@@ -50,6 +50,14 @@
                placeholder="Filter championships and special events…">
         <button type="button" id="filter-clear" class="filter-clear" hidden aria-label="Clear filter">&times;</button>
       </div>
+      <div class="license-filter" role="group" aria-label="Filter by license">
+        {% for tier in license_tiers %}
+        <label class="license-toggle" title="{{ tier.name }}">
+          <input type="checkbox" class="license-filter-checkbox" value="{{ tier.code }}" checked>
+          <span class="license-chip" style="--badge-bg: {{ tier.color }}; --badge-fg: {{ tier.text_color }}">{{ tier.code }}</span>
+        </label>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
@@ -63,12 +71,17 @@
       {% for s in group.series %}
       {% set weeks = series_weeks.get(s.id, []) %}
       {% set current_week = series_current_week.get(s.id) %}
-      <div class="series-card {% if s.id in selected_series_ids %}is-checked{% endif %}" data-series-card="{{ s.id }}">
+      {% set tier = license_by_code.get(s.license_level) %}
+      <div class="series-card {% if s.id in selected_series_ids %}is-checked{% endif %}"
+           data-series-card="{{ s.id }}" data-license="{{ s.license_level }}">
         <div class="series-head">
           <input type="checkbox" name="series_ids" value="{{ s.id }}" class="series-checkbox"
                  data-series-id="{{ s.id }}" {% if s.id in selected_series_ids %}checked{% endif %}>
           <div>
             <label for="series-{{ s.id }}">
+              {% if tier %}
+              <span class="license-badge" style="--badge-bg: {{ tier.color }}; --badge-fg: {{ tier.text_color }}" title="{{ tier.name }}">{{ tier.code }}</span>
+              {% endif %}
               {% if s.link_url %}
               <a class="series-name" href="{{ s.link_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">{{ s.name }}</a>
               {% else %}
@@ -78,7 +91,6 @@
             {% if series_session_duration.get(s.id) %}
             <h2 class="series-duration">~{{ series_session_duration.get(s.id) }} / session</h2>
             {% endif %}
-            {% if s.license_level %}<span class="series-meta">{{ s.license_level }}</span>{% endif %}
 
             {% if current_week %}
             <details class="schedule">
@@ -346,19 +358,35 @@ document.getElementById('timezone-select').addEventListener('change', updateAllS
 
 updateAllSlotRows();
 
-// ---- Filter championships / special events by name ----
+// ---- Filter championships / special events by name and/or license ----
 var filterInput = document.getElementById('filter-input');
 var filterClear = document.getElementById('filter-clear');
+var licenseCheckboxes = document.querySelectorAll('.license-filter-checkbox');
+
+function checkedLicenses() {
+  var set = {};
+  licenseCheckboxes.forEach(function (cb) { if (cb.checked) set[cb.value] = true; });
+  return set;
+}
+
 function applyFilter() {
   var query = filterInput.value.trim().toLowerCase();
   filterClear.hidden = filterInput.value.length === 0;
+  var licenses = checkedLicenses();
+  var licenseFilterActive = licenseCheckboxes.length > 0 &&
+    Array.prototype.some.call(licenseCheckboxes, function (cb) { return !cb.checked; });
   document.querySelectorAll('.tab-panel').forEach(function (panel) {
     var cards = panel.querySelectorAll('.series-card');
     var anyVisible = false;
     cards.forEach(function (card) {
       var nameEl = card.querySelector('.series-name');
       var name = nameEl ? nameEl.textContent.toLowerCase() : '';
-      var match = !query || name.indexOf(query) !== -1;
+      var nameMatch = !query || name.indexOf(query) !== -1;
+      // Cards with no parsed license (e.g. special events) are never hidden by
+      // the license filter — only championships whose license we actually know.
+      var license = card.dataset.license || '';
+      var licenseMatch = !license || licenses[license];
+      var match = nameMatch && licenseMatch;
       card.hidden = !match;
       if (match) anyVisible = true;
     });
@@ -368,7 +396,7 @@ function applyFilter() {
     });
     var emptyMsg = panel.querySelector('.no-matches');
     if (emptyMsg) {
-      emptyMsg.hidden = !query || anyVisible || cards.length === 0;
+      emptyMsg.hidden = (!query && !licenseFilterActive) || anyVisible || cards.length === 0;
     }
   });
 }
@@ -378,6 +406,7 @@ filterClear.addEventListener('click', function () {
   applyFilter();
   filterInput.focus();
 });
+licenseCheckboxes.forEach(function (cb) { cb.addEventListener('change', applyFilter); });
 
 // ---- Form validation: name, email, and at least one pick ----
 var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

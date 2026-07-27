@@ -15,6 +15,10 @@
   <div class="series-card{% if selection.special_event and selection.special_event.date_end < now %} event-card{% endif %}">
     {% if selection.series %}
       <div class="series-name">
+        {% set tier = license_by_code.get(selection.series.license_level) %}
+        {% if tier %}
+        <span class="license-badge" style="--badge-bg: {{ tier.color }}; --badge-fg: {{ tier.text_color }}" title="{{ tier.name }}">{{ tier.code }}</span>
+        {% endif %}
         {% if selection.series.link_url %}
         <a href="{{ selection.series.link_url }}" target="_blank" rel="noopener noreferrer">{{ selection.series.name }}</a>
         {% else %}

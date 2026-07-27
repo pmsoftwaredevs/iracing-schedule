@@ -17,6 +17,7 @@ from app.config import get_settings
 from app.db import get_session, init_db
 from app.email import send_recovery_email, send_signup_email
 from app.ics_builder import build_calendar, typical_session_duration
+from app.licenses import LICENSE_BY_CODE, LICENSE_TIERS
 from app.models import NotificationLog, ScheduleWeek, Selection, Series, SpecialEvent, Timeslot, User
 from app.scheduler import bootstrap_if_needed, build_scheduler
 
@@ -131,6 +132,8 @@ def _browse_context(session: Session) -> dict:
         "series_session_duration": series_session_duration,
         "series_available_days": series_available_days,
         "day_label_by_value": dict(DAY_LABELS),
+        "license_tiers": LICENSE_TIERS,
+        "license_by_code": LICENSE_BY_CODE,
         "special_events": special_events,
         "special_events_year": datetime.now(UTC).year,
         "timezones": AVAILABLE_TIMEZONES,
@@ -284,6 +287,7 @@ def manage(request: Request, token: str, session: SessionDep):
             "series_current_week": series_current_week,
             "series_session_duration": series_session_duration,
             "local_slot_label": lambda dow, t: _local_slot_label(dow, t, user.timezone),
+            "license_by_code": LICENSE_BY_CODE,
         },
     )
 
