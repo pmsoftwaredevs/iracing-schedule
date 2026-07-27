@@ -11,3 +11,5 @@ node_modules/
 /docs/shared/
 /docs/config.js
 .wrangler/
+.env
+.mcp.json
