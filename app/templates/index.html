@@ -75,6 +75,9 @@
               <span class="series-name">{{ s.name }}</span>
               {% endif %}
             </label>
+            {% if series_session_duration.get(s.id) %}
+            <h2 class="series-duration">~{{ series_session_duration.get(s.id) }} / session</h2>
+            {% endif %}
             {% if s.license_level %}<span class="series-meta">{{ s.license_level }}</span>{% endif %}
 
             {% if current_week %}
@@ -99,17 +102,22 @@
             {% endif %}
           </div>
         </div>
-        <div class="slots-container" data-series-id="{{ s.id }}" data-times="{{ s.session_times|join(',') }}">
+        {% set available_days = series_available_days.get(s.id, []) %}
+        {% set available_day_values = available_days|map(attribute=0)|list %}
+        <div class="slots-container" data-series-id="{{ s.id }}"
+             data-times-by-day='{{ s.session_times_by_day|tojson }}'>
           {% for slot in timeslots_by_series.get(s.id, []) %}
           <div class="slot-row">
             <input type="hidden" name="slot_series_id" value="{{ s.id }}">
+            {% set day_options = available_days if slot.day_of_week in available_day_values else available_days + [(slot.day_of_week, day_label_by_value[slot.day_of_week])] %}
             <select name="slot_day">
-              {% for value, label in [(1,'Tuesday'),(2,'Wednesday'),(3,'Thursday'),(4,'Friday'),(5,'Saturday'),(6,'Sunday'),(0,'Monday')] %}
+              {% for value, label in day_options %}
               <option value="{{ value }}" {% if slot.day_of_week == value %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
             </select>
+            {% set day_times = s.session_times_by_day.get(slot.day_of_week|string, []) %}
             {% set saved_time = slot.time_gmt.strftime('%H:%M') %}
-            {% set slot_options = s.session_times if saved_time in s.session_times else s.session_times + [saved_time] %}
+            {% set slot_options = day_times if saved_time in day_times else day_times + [saved_time] %}
             <select name="slot_time">
               {% for option in slot_options %}
               <option value="{{ option }}" {% if saved_time == option %}selected{% endif %}>{{ option }} GMT</option>
@@ -164,15 +172,7 @@
 <template id="slot-row-template">
   <div class="slot-row">
     <input type="hidden" name="slot_series_id" value="">
-    <select name="slot_day">
-      <option value="1" selected>Tuesday</option>
-      <option value="2">Wednesday</option>
-      <option value="3">Thursday</option>
-      <option value="4">Friday</option>
-      <option value="5">Saturday</option>
-      <option value="6">Sunday</option>
-      <option value="0">Monday</option>
-    </select>
+    <select name="slot_day"></select>
     <select name="slot_time"></select>
     <span class="local-badge"></span>
     <button type="button" class="remove-slot">Remove</button>
@@ -193,27 +193,65 @@ document.querySelectorAll('.tab-btn').forEach(function (btn) {
 });
 
 // ---- Timeslot rows ----
+// Day order matches the GMT week (Tuesday rollover) and app/main.py's DAY_LABELS;
+// Timeslot.day_of_week convention is 0=Monday..6=Sunday.
+var DAY_LABELS = [[1, 'Tuesday'], [2, 'Wednesday'], [3, 'Thursday'], [4, 'Friday'],
+                   [5, 'Saturday'], [6, 'Sunday'], [0, 'Monday']];
 var slotTemplate = document.getElementById('slot-row-template');
 
-function addSlotRow(seriesId) {
-  var container = document.querySelector('.slots-container[data-series-id="' + seriesId + '"]');
-  var times = (container.dataset.times || '').split(',').filter(Boolean);
-  var row = slotTemplate.content.cloneNode(true);
-  row.querySelector('input[name="slot_series_id"]').value = seriesId;
-  var timeSelect = row.querySelector('select[name="slot_time"]');
-  times.forEach(function (t) {
+function timesByDayFor(row) {
+  var container = row.closest('.slots-container');
+  try {
+    return JSON.parse((container && container.dataset.timesByDay) || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+
+// Only the days a series actually races on are offered — e.g. a Thu/Sat-only
+// series shouldn't let a user pick a Monday slot (empty timesByDay means no
+// day-specific data, so every day stays available, matching app/main.py's
+// _available_days fallback).
+function populateDaySelect(select, timesByDay) {
+  select.innerHTML = '';
+  var activeDays = Object.keys(timesByDay);
+  var labels = activeDays.length
+    ? DAY_LABELS.filter(function (pair) { return activeDays.indexOf(String(pair[0])) !== -1; })
+    : DAY_LABELS;
+  labels.forEach(function (pair) {
+    var option = document.createElement('option');
+    option.value = pair[0];
+    option.textContent = pair[1];
+    select.appendChild(option);
+  });
+}
+
+function populateTimeSelect(select, times) {
+  select.innerHTML = '';
+  (times || []).forEach(function (t) {
     var option = document.createElement('option');
     option.value = t;
     option.textContent = t + ' GMT';
-    timeSelect.appendChild(option);
+    select.appendChild(option);
   });
+}
+
+function addSlotRow(seriesId) {
+  var container = document.querySelector('.slots-container[data-series-id="' + seriesId + '"]');
+  var timesByDay = JSON.parse(container.dataset.timesByDay || '{}');
+  var row = slotTemplate.content.cloneNode(true);
+  row.querySelector('input[name="slot_series_id"]').value = seriesId;
+  var daySelect = row.querySelector('select[name="slot_day"]');
+  var timeSelect = row.querySelector('select[name="slot_time"]');
+  populateDaySelect(daySelect, timesByDay);
+  populateTimeSelect(timeSelect, timesByDay[daySelect.value]);
   row.querySelector('.remove-slot').addEventListener('click', function (event) {
     event.target.closest('.slot-row').remove();
   });
-  var rowEl = row.querySelector('.slot-row');
-  wireSlotRow(rowEl);
   container.appendChild(row);
-  updateSlotRowLocal(container.querySelector('.slot-row:last-child'));
+  var rowEl = container.querySelector('.slot-row:last-child');
+  wireSlotRow(rowEl);
+  updateSlotRowLocal(rowEl);
 }
 
 document.querySelectorAll('.add-slot').forEach(function (button) {
@@ -289,8 +327,12 @@ function updateAllSlotRows() {
 }
 
 function wireSlotRow(row) {
-  row.querySelector('select[name="slot_day"]').addEventListener('change', function () { updateSlotRowLocal(row); });
-  row.querySelector('select[name="slot_time"]').addEventListener('change', function () { updateSlotRowLocal(row); });
+  var timeSelect = row.querySelector('select[name="slot_time"]');
+  row.querySelector('select[name="slot_day"]').addEventListener('change', function () {
+    populateTimeSelect(timeSelect, timesByDayFor(row)[this.value]);
+    updateSlotRowLocal(row);
+  });
+  timeSelect.addEventListener('change', function () { updateSlotRowLocal(row); });
 }
 
 document.querySelectorAll('.slot-row').forEach(function (row) {

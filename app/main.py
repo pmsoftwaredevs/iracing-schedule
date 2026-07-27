@@ -1,3 +1,4 @@
+import json
 import logging
 from collections import defaultdict
 from contextlib import asynccontextmanager
@@ -15,7 +16,7 @@ from sqlmodel import Session, select
 from app.config import get_settings
 from app.db import get_session, init_db
 from app.email import send_recovery_email, send_signup_email
-from app.ics_builder import build_calendar
+from app.ics_builder import build_calendar, typical_session_duration
 from app.models import NotificationLog, ScheduleWeek, Selection, Series, SpecialEvent, Timeslot, User
 from app.scheduler import bootstrap_if_needed, build_scheduler
 
@@ -23,9 +24,25 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message
 logger = logging.getLogger(__name__)
 
 templates = Jinja2Templates(directory="app/templates")
+templates.env.filters["tojson"] = json.dumps
 
 AVAILABLE_TIMEZONES = sorted(available_timezones())
 DEFAULT_TIMEZONE = "UTC"
+
+# Week order (matches Timeslot.day_of_week: 0=Monday..6=Sunday), starting from
+# Tuesday since that's when iRacing's GMT week rolls over.
+DAY_LABELS = [(1, "Tuesday"), (2, "Wednesday"), (3, "Thursday"), (4, "Friday"),
+              (5, "Saturday"), (6, "Sunday"), (0, "Monday")]
+
+
+def _available_days(session_times_by_day: dict[str, list[str]]) -> list[tuple[int, str]]:
+    """Which days a series actually races on, in week order — restricts the
+    timeslot picker's day dropdown to real options instead of all 7 days, e.g. a
+    Thu/Sat-only series shouldn't let a user pick a Monday slot."""
+    if not session_times_by_day:
+        return DAY_LABELS
+    active = {int(day) for day in session_times_by_day}
+    return [pair for pair in DAY_LABELS if pair[0] in active]
 
 
 @asynccontextmanager
@@ -72,6 +89,21 @@ def _current_or_next_week(weeks: list[ScheduleWeek], now: datetime) -> ScheduleW
     return max(weeks, key=lambda w: w.week_number)
 
 
+def _format_duration(duration: timedelta | None) -> str | None:
+    """"1h 30m"-style label, dropping the minutes part when it's a whole hour.
+    None (nothing to estimate from — see typical_session_duration) stays None so
+    the template omits the hint entirely rather than showing a guessed default."""
+    if duration is None:
+        return None
+    total_minutes = int(duration.total_seconds() // 60)
+    hours, minutes = divmod(total_minutes, 60)
+    if hours and minutes:
+        return f"{hours}h {minutes}m"
+    if hours:
+        return f"{hours}h"
+    return f"{minutes}m"
+
+
 def _browse_context(session: Session) -> dict:
     series = session.exec(select(Series)).all()
     special_events = session.exec(select(SpecialEvent)).all()
@@ -80,6 +112,8 @@ def _browse_context(session: Session) -> dict:
     groups: dict[str, dict] = {}
     series_weeks: dict[int | None, list[ScheduleWeek]] = {}
     series_current_week: dict[int | None, ScheduleWeek | None] = {}
+    series_session_duration: dict[int | None, str | None] = {}
+    series_available_days: dict[int | None, list[tuple[int, str]]] = {}
     for s in series:
         label, subtitle = _series_group_label_and_subtitle(s)
         group = groups.setdefault(label, {"label": label, "subtitle": subtitle, "series": []})
@@ -87,11 +121,16 @@ def _browse_context(session: Session) -> dict:
         weeks = sorted(s.weeks, key=lambda w: w.week_number)
         series_weeks[s.id] = weeks
         series_current_week[s.id] = _current_or_next_week(weeks, now)
+        series_session_duration[s.id] = _format_duration(typical_session_duration(s))
+        series_available_days[s.id] = _available_days(s.session_times_by_day)
 
     return {
         "series_groups": list(groups.values()),
         "series_weeks": series_weeks,
         "series_current_week": series_current_week,
+        "series_session_duration": series_session_duration,
+        "series_available_days": series_available_days,
+        "day_label_by_value": dict(DAY_LABELS),
         "special_events": special_events,
         "special_events_year": datetime.now(UTC).year,
         "timezones": AVAILABLE_TIMEZONES,
@@ -223,12 +262,16 @@ def manage(request: Request, token: str, session: SessionDep):
 
     series_weeks: dict[int, list[ScheduleWeek]] = {}
     series_current_week: dict[int, ScheduleWeek | None] = {}
+    series_session_duration: dict[int, str | None] = {}
     for selection in user.selections:
         if selection.series is None or selection.series_id is None:
             continue
         weeks = sorted(selection.series.weeks, key=lambda w: w.week_number)
         series_weeks[selection.series_id] = weeks
         series_current_week[selection.series_id] = _current_or_next_week(weeks, now)
+        series_session_duration[selection.series_id] = _format_duration(
+            typical_session_duration(selection.series)
+        )
 
     return templates.TemplateResponse(
         request,
@@ -239,6 +282,7 @@ def manage(request: Request, token: str, session: SessionDep):
             "now": now,
             "series_weeks": series_weeks,
             "series_current_week": series_current_week,
+            "series_session_duration": series_session_duration,
             "local_slot_label": lambda dow, t: _local_slot_label(dow, t, user.timezone),
         },
     )

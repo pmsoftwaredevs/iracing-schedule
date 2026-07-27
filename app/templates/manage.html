@@ -21,6 +21,9 @@
         {{ selection.series.name }}
         {% endif %}
       </div>
+      {% if series_session_duration.get(selection.series_id) %}
+      <h2 class="series-duration">~{{ series_session_duration.get(selection.series_id) }} / session</h2>
+      {% endif %}
       {% set current_week = series_current_week.get(selection.series_id) %}
       {% if current_week %}
       <details class="schedule">

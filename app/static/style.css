@@ -269,6 +269,15 @@ select, input[type="text"], input[type="email"] {
   margin-left: 0.35rem;
 }
 
+.series-duration {
+  display: inline;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  font-weight: 400;
+  font-family: var(--mono);
+  margin: 0 0 0 0.35rem;
+}
+
 /* Collapsed schedule summary: the "W1 - 2026-06-27 - Qualcomm Base" line */
 
 .schedule {

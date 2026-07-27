@@ -1,6 +1,6 @@
 from datetime import date, datetime, time, timedelta, timezone
 
-from app.ics_builder import build_calendar
+from app.ics_builder import build_calendar, typical_session_duration
 from app.models import ScheduleWeek, Season, Selection, Series, SpecialEvent, Timeslot, User
 
 
@@ -45,6 +45,172 @@ def test_series_selection_produces_one_event_per_week_per_slot(session):
     assert all(e["dtstart"].dt.tzinfo == timezone.utc for e in events)
     summaries = {str(e["summary"]) for e in events}
     assert summaries == {"GT3 Fixed — Spa-Francorchamps"}
+
+
+def test_close_sessions_get_half_the_gap_as_duration(session):
+    user = User(name="Alex", email="alex@example.com")
+    session.add(user)
+    session.commit()
+
+    series = Series(season_id=1, name="GT3 Fixed", category="Sports Car")
+    session.add(series)
+    session.commit()
+
+    week = ScheduleWeek(
+        series_id=series.id,
+        week_number=1,
+        track_name="Spa-Francorchamps",
+        date_start=datetime(2026, 1, 6),
+        date_end=datetime(2026, 1, 12),
+    )
+    session.add(week)
+    session.commit()
+
+    selection = Selection(user_id=user.id, series_id=series.id)
+    session.add(selection)
+    session.commit()
+
+    # Same day, 3 hours apart — well under 24h, so each shrinks to half the gap.
+    session.add(Timeslot(selection_id=selection.id, day_of_week=2, time_gmt=time(19, 0)))
+    session.add(Timeslot(selection_id=selection.id, day_of_week=2, time_gmt=time(22, 0)))
+    session.commit()
+    session.refresh(user)
+
+    calendar = build_calendar(session, user)
+    events = [e for e in calendar.walk("VEVENT") if "next season" not in str(e["summary"])]
+    events.sort(key=lambda e: e["dtstart"].dt)
+
+    assert len(events) == 2
+    # 19:00 -> 22:00 is a 3h gap, half is 1h30.
+    assert events[0]["dtstart"].dt == datetime(2026, 1, 7, 19, 0, tzinfo=timezone.utc)
+    assert events[0]["dtend"].dt == datetime(2026, 1, 7, 20, 30, tzinfo=timezone.utc)
+    # 22:00 -> next week's 19:00 is nearly a full week away, so this one keeps the default.
+    assert events[1]["dtstart"].dt == datetime(2026, 1, 7, 22, 0, tzinfo=timezone.utc)
+    assert events[1]["dtend"].dt == datetime(2026, 1, 7, 23, 0, tzinfo=timezone.utc)
+
+
+def test_far_apart_sessions_keep_default_duration(session):
+    user = User(name="Alex", email="alex@example.com")
+    session.add(user)
+    session.commit()
+
+    series = Series(season_id=1, name="GT3 Fixed", category="Sports Car")
+    session.add(series)
+    session.commit()
+
+    week = ScheduleWeek(
+        series_id=series.id,
+        week_number=1,
+        track_name="Spa-Francorchamps",
+        date_start=datetime(2026, 1, 6),
+        date_end=datetime(2026, 1, 12),
+    )
+    session.add(week)
+    session.commit()
+
+    selection = Selection(user_id=user.id, series_id=series.id)
+    session.add(selection)
+    session.commit()
+
+    session.add(Timeslot(selection_id=selection.id, day_of_week=2, time_gmt=time(19, 0)))
+    session.add(Timeslot(selection_id=selection.id, day_of_week=5, time_gmt=time(14, 30)))
+    session.commit()
+    session.refresh(user)
+
+    calendar = build_calendar(session, user)
+    events = [e for e in calendar.walk("VEVENT") if "next season" not in str(e["summary"])]
+
+    assert len(events) == 2
+    for event in events:
+        assert event["dtend"].dt - event["dtstart"].dt == timedelta(minutes=60)
+
+
+def test_explicit_week_duration_takes_precedence_over_gap_estimate(session):
+    user = User(name="Alex", email="alex@example.com")
+    session.add(user)
+    session.commit()
+
+    series = Series(season_id=1, name="IMSA Michelin Pilot Challenge", category="Sports Car")
+    session.add(series)
+    session.commit()
+
+    # 19:00 -> 22:00 close together would normally shrink to a 1h30 half-gap
+    # estimate, but the PDF explicitly states "120 mins" for this week.
+    week = ScheduleWeek(
+        series_id=series.id,
+        week_number=1,
+        track_name="Watkins Glen",
+        date_start=datetime(2026, 1, 6),
+        date_end=datetime(2026, 1, 12),
+        duration_minutes=120,
+    )
+    session.add(week)
+    session.commit()
+
+    selection = Selection(user_id=user.id, series_id=series.id)
+    session.add(selection)
+    session.commit()
+
+    session.add(Timeslot(selection_id=selection.id, day_of_week=2, time_gmt=time(19, 0)))
+    session.add(Timeslot(selection_id=selection.id, day_of_week=2, time_gmt=time(22, 0)))
+    session.commit()
+    session.refresh(user)
+
+    calendar = build_calendar(session, user)
+    events = [e for e in calendar.walk("VEVENT") if "next season" not in str(e["summary"])]
+
+    assert len(events) == 2
+    for event in events:
+        assert event["dtend"].dt - event["dtstart"].dt == timedelta(minutes=120)
+
+
+def test_typical_session_duration_prefers_explicit_week_duration(session):
+    series = Series(
+        season_id=1,
+        name="IMSA Michelin Pilot Challenge",
+        session_times_by_day={"5": ["04:00", "15:00"], "6": ["00:00", "20:00"]},
+    )
+    session.add(series)
+    session.commit()
+    # Gap-based estimate on 04:00/15:00/00:00/20:00 would be well under 120
+    # minutes, but the PDF's explicit "120 mins" should win.
+    session.add(ScheduleWeek(
+        series_id=series.id, week_number=1, track_name="Watkins Glen",
+        date_start=datetime(2026, 1, 6), date_end=datetime(2026, 1, 12), duration_minutes=120,
+    ))
+    session.commit()
+    session.refresh(series)
+
+    assert typical_session_duration(series) == timedelta(minutes=120)
+
+
+def test_typical_session_duration_falls_back_to_gap_estimate_without_explicit_duration(session):
+    series = Series(
+        season_id=1,
+        name="Formula A - Grand Prix Tour",
+        session_times_by_day={
+            "3": ["10:00", "19:00"], "5": ["10:00", "19:00"],
+            "4": ["01:00", "04:00"], "6": ["01:00", "04:00"],
+        },
+    )
+    session.add(series)
+    session.commit()
+
+    # Tightest same-time-of-day gap across the flattened set is 01:00 -> 04:00 (3h), half is 1h30.
+    assert typical_session_duration(series) == timedelta(minutes=90)
+
+
+def test_typical_session_duration_none_when_nothing_to_estimate_from(session):
+    """Fewer than 2 known session times and no explicit PDF duration means there's
+    no real signal to estimate from — returns None (the caller omits the "~Xh /
+    session" hint) rather than silently guessing DEFAULT_RACE_DURATION. Actual .ics
+    events still get DEFAULT_RACE_DURATION regardless, via _slot_durations — see
+    test_far_apart_sessions_keep_default_duration above."""
+    series = Series(season_id=1, name="Some Series", session_times_by_day={"5": ["14:00"]})
+    session.add(series)
+    session.commit()
+
+    assert typical_session_duration(series) is None
 
 
 def test_special_event_single_day_still_covers_that_day(session):

@@ -35,7 +35,7 @@ def client(db_engine):
             category="Sports Car",
             license_level="C",
             cadence_text="Races every hour at :00",
-            session_times=["00:00", "01:00", "19:00", "20:30"],
+            session_times_by_day={str(day): ["00:00", "01:00", "19:00", "20:30"] for day in range(7)},
         )
         session.add(series)
         session.commit()
@@ -56,6 +56,25 @@ def test_index_lists_series(client):
     response = client.get("/")
     assert response.status_code == 200
     assert "GT3 Fixed" in response.text
+
+
+def test_index_omits_duration_hint_when_nothing_to_estimate_from(client, db_engine):
+    with Session(db_engine) as session:
+        session.add(Series(
+            season_id=1, name="Single Session Series",
+            cadence_text="Races on Saturday at 14 GMT",
+            session_times_by_day={"5": ["14:00"]},
+        ))
+        session.commit()
+
+    response = client.get("/")
+
+    # The known-duration fixture series still shows its hint...
+    assert "/ session</h2>" in response.text
+    # ...but the single-session-time series (nothing to estimate from) shows none.
+    single_card_start = response.text.index("Single Session Series")
+    single_card = response.text[single_card_start:single_card_start + 400]
+    assert "/ session</h2>" not in single_card
 
 
 def test_signup_edit_and_recovery_flow(client, db_engine, monkeypatch):

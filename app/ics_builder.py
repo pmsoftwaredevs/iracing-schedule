@@ -6,7 +6,9 @@ Series.session_times (see app/parsers/race_cadence.py) — iRacing runs sessions
 fixed GMT times that don't shift with DST, so this is a direct day+time -> UTC
 combination per the actual calendar date of each week, not a timezone conversion.
 Each session's duration is unknown from the schedule data, so every event defaults
-to DEFAULT_RACE_DURATION.
+to DEFAULT_RACE_DURATION — unless another timeslot of the same selection starts
+less than 24h later, in which case the event is shrunk to half that gap (see
+_slot_durations) so back-to-back sessions don't overlap on the calendar.
 
 Special events render as all-day (DATE, not DATE-TIME) events spanning their full
 announced date range inclusive — per RFC 5445 an all-day DTEND is exclusive, so it's
@@ -24,9 +26,78 @@ from datetime import datetime, timedelta, timezone
 from icalendar import Calendar, Event
 from sqlmodel import Session
 
-from app.models import Selection, SpecialEvent, User
+from app.models import Selection, Series, SpecialEvent, Timeslot, User
 
 DEFAULT_RACE_DURATION = timedelta(minutes=60)
+
+
+def _week_offset(slot: Timeslot) -> timedelta:
+    """Slot's position within its weekly recurring cycle, as an offset from the
+    start of the (GMT) week — used to measure the gap to the next session."""
+    return timedelta(days=slot.day_of_week, hours=slot.time_gmt.hour,
+                      minutes=slot.time_gmt.minute, seconds=slot.time_gmt.second)
+
+
+def _duration_from_gap(gap: timedelta) -> timedelta:
+    """Half of a gap between two back-to-back sessions, rounded to the nearest 5
+    minutes — or DEFAULT_RACE_DURATION once the gap is a day or more, since at
+    that point the two sessions aren't really "back-to-back" anymore."""
+    if gap >= timedelta(hours=24):
+        return DEFAULT_RACE_DURATION
+    half_minutes = gap.total_seconds() / 2 / 60
+    rounded_minutes = round(half_minutes / 5) * 5
+    return timedelta(minutes=rounded_minutes)
+
+
+def _slot_durations(timeslots: list[Timeslot]) -> dict[int | None, timedelta]:
+    """Sessions of the same championship can land less than 24h apart (e.g. a
+    Wednesday and a Thursday timeslot picked for the same series). When that
+    happens, shrink the earlier session's event to half the gap until the next
+    one (see _duration_from_gap) instead of the DEFAULT_RACE_DURATION, so
+    back-to-back races don't show as overlapping on the calendar."""
+    if len(timeslots) < 2:
+        return {slot.id: DEFAULT_RACE_DURATION for slot in timeslots}
+
+    ordered = sorted(timeslots, key=_week_offset)
+    durations = {}
+    for i, slot in enumerate(ordered):
+        next_slot = ordered[(i + 1) % len(ordered)]
+        gap = _week_offset(next_slot) - _week_offset(slot)
+        if gap <= timedelta(0):
+            gap += timedelta(days=7)
+        durations[slot.id] = _duration_from_gap(gap)
+    return durations
+
+
+def typical_session_duration(series: Series) -> timedelta | None:
+    """Estimate how long a single session runs. An explicit duration stated in the
+    schedule PDF (see app/parsers/schedule_pdf.py's duration_minutes) wins when any
+    week has one; otherwise falls back to the tightest gap between the series' own
+    daily cadence times (see app/parsers/race_cadence.py) — the same "half the gap"
+    estimate used for picked timeslots (see _slot_durations), just measured against
+    the full day. Powers the rough "what to expect" duration hint shown on the
+    championship picker.
+
+    Returns None when there's nothing to estimate from (fewer than 2 known session
+    times) rather than silently guessing DEFAULT_RACE_DURATION — the caller should
+    just omit the hint in that case. This is purely a display concern: actual .ics
+    events still fall back to DEFAULT_RACE_DURATION via _slot_durations regardless,
+    since a calendar event needs *some* end time."""
+    explicit = next((week.duration_minutes for week in series.weeks if week.duration_minutes), None)
+    if explicit is not None:
+        return timedelta(minutes=explicit)
+
+    session_times = sorted({t for times in series.session_times_by_day.values() for t in times})
+    if len(session_times) < 2:
+        return None
+
+    offsets = sorted(
+        timedelta(hours=int(hh), minutes=int(mm))
+        for hh, mm in (t.split(":") for t in session_times)
+    )
+    gaps = [b - a for a, b in zip(offsets, offsets[1:])]
+    gaps.append(offsets[0] + timedelta(days=1) - offsets[-1])
+    return _duration_from_gap(min(gaps))
 
 
 def _date_for_weekday(range_start: datetime, range_end: datetime, day_of_week: int) -> datetime | None:
@@ -43,7 +114,12 @@ def _date_for_weekday(range_start: datetime, range_end: datetime, day_of_week: i
 def _series_events(selection: Selection) -> list[Event]:
     events = []
     weeks = selection.series.weeks if selection.series else []
+    gap_durations = _slot_durations(selection.timeslots)
     for week in weeks:
+        # An explicit duration stated in the PDF for this week (see
+        # app/parsers/schedule_pdf.py) beats the half-the-gap estimate, which is
+        # only a guess based on the user's own picked timeslots.
+        duration = timedelta(minutes=week.duration_minutes) if week.duration_minutes else None
         for slot in selection.timeslots:
             day = _date_for_weekday(week.date_start, week.date_end, slot.day_of_week)
             if day is None:
@@ -54,7 +130,7 @@ def _series_events(selection: Selection) -> list[Event]:
                 summary=f"{selection.series.name} — {week.track_name}",
                 location=week.track_name,
                 dtstart=dtstart,
-                dtend=dtstart + DEFAULT_RACE_DURATION,
+                dtend=dtstart + (duration or gap_durations[slot.id]),
             ))
     return events
 
