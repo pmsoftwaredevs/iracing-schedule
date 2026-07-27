@@ -47,6 +47,7 @@ class ParsedSeries:
     name: str
     cadence_text: str
     weeks: list[ParsedWeek]
+    link_url: str | None = None
 
 
 class ScheduleParseError(ValueError):
@@ -99,7 +100,7 @@ def _is_continuation_table(table: list[list[str | None]]) -> bool:
     return bool(WEEK_RE.match(table[0][0].strip()))
 
 
-def _parse_table(table: list[list[str | None]]) -> ParsedSeries | None:
+def _parse_table(table: list[list[str | None]], link_url: str | None) -> ParsedSeries | None:
     if not table or not table[0] or not table[0][0]:
         return None
     weeks = [week for row in table if (week := _parse_row(row)) is not None]
@@ -109,20 +110,43 @@ def _parse_table(table: list[list[str | None]]) -> ParsedSeries | None:
         name=_series_name(table[0][0]),
         cadence_text=_cadence_text(table[0][0]),
         weeks=weeks,
+        link_url=link_url,
     )
+
+
+# The "go-racing" URI link annotation iRacing embeds over each series' title line
+# sits a small, fixed distance below the header table's top edge (~6pt, sampled
+# from a real schedule PDF) rather than lining up exactly — hence the tolerance
+# instead of an exact match.
+LINK_ANNOT_TOLERANCE = 20.0
+
+
+def _match_series_link(annots: list[dict], table_top: float, tolerance: float = LINK_ANNOT_TOLERANCE) -> str | None:
+    """Picks the URI annotation (from a PDF page's link annotations, each a dict
+    with at least "top" and "uri") positioned closest to a series header table's
+    top edge, i.e. the annotation drawn over that series' title line."""
+    candidates = [a for a in annots if abs(a["top"] - table_top) <= tolerance]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda a: abs(a["top"] - table_top))["uri"]
 
 
 def parse_schedule_pdf(path: str) -> list[ParsedSeries]:
     series_list: list[ParsedSeries] = []
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
-            for table in page.extract_tables():
+            annots = [
+                {"top": a["top"], "uri": a["uri"]} for a in (page.annots or []) if a.get("uri")
+            ]
+            for pdf_table in page.find_tables():
+                table = pdf_table.extract()
                 if _is_continuation_table(table):
                     weeks = [week for row in table if (week := _parse_row(row)) is not None]
                     if weeks and series_list:
                         series_list[-1].weeks.extend(weeks)
                     continue
-                parsed = _parse_table(table)
+                link_url = _match_series_link(annots, pdf_table.bbox[1])
+                parsed = _parse_table(table, link_url)
                 if parsed is not None:
                     series_list.append(parsed)
     if not series_list:

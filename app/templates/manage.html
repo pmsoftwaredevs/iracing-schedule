@@ -14,7 +14,13 @@
   {% for selection in user.selections %}
   <div class="series-card{% if selection.special_event and selection.special_event.date_end < now %} event-card{% endif %}">
     {% if selection.series %}
-      <div class="series-name">{{ selection.series.name }}</div>
+      <div class="series-name">
+        {% if selection.series.link_url %}
+        <a href="{{ selection.series.link_url }}" target="_blank" rel="noopener noreferrer">{{ selection.series.name }}</a>
+        {% else %}
+        {{ selection.series.name }}
+        {% endif %}
+      </div>
       {% set current_week = series_current_week.get(selection.series_id) %}
       {% if current_week %}
       <details class="schedule">

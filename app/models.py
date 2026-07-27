@@ -38,6 +38,7 @@ class Series(SQLModel, table=True):
     category: str = ""
     license_level: str = ""
     cadence_text: str = ""  # e.g. "Races every even 2 hours at :30 past", from the PDF
+    link_url: str | None = None  # "go racing" link to the series on members-ng.iracing.com, from the PDF
     session_times: list[str] = Field(default_factory=list, sa_column=Column(JSON))  # sorted "HH:MM" GMT
     raw_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
 

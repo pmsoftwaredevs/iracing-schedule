@@ -68,7 +68,13 @@
           <input type="checkbox" name="series_ids" value="{{ s.id }}" class="series-checkbox"
                  data-series-id="{{ s.id }}" {% if s.id in selected_series_ids %}checked{% endif %}>
           <div>
-            <label for="series-{{ s.id }}"><span class="series-name">{{ s.name }}</span></label>
+            <label for="series-{{ s.id }}">
+              {% if s.link_url %}
+              <a class="series-name" href="{{ s.link_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">{{ s.name }}</a>
+              {% else %}
+              <span class="series-name">{{ s.name }}</span>
+              {% endif %}
+            </label>
             {% if s.license_level %}<span class="series-meta">{{ s.license_level }}</span>{% endif %}
 
             {% if current_week %}

@@ -4,6 +4,7 @@ from pathlib import Path
 from app.parsers.schedule_pdf import (
     _cadence_text,
     _is_continuation_table,
+    _match_series_link,
     _parse_row,
     _series_name,
     _track_name,
@@ -82,3 +83,22 @@ def test_parse_schedule_pdf_against_real_fixture_page():
     assert series.weeks[0].track_name == "Charlotte Motor Speedway - Legends Oval"
     assert series.weeks[0].date_start == datetime(2025, 9, 16)
     assert series.weeks[-1].week_number == 12
+    # The fixture page carries no "go racing" link annotation.
+    assert series.link_url is None
+
+
+def test_match_series_link_picks_annot_closest_to_header_top():
+    annots = [
+        {"top": 40.0, "uri": "http://members-ng.iracing.com/.../1111/go-racing"},
+        {"top": 167.95, "uri": "http://members-ng.iracing.com/.../6346/go-racing"},
+    ]
+    assert _match_series_link(annots, table_top=162.0) == "http://members-ng.iracing.com/.../6346/go-racing"
+
+
+def test_match_series_link_returns_none_when_nothing_within_tolerance():
+    annots = [{"top": 500.0, "uri": "http://members-ng.iracing.com/.../1111/go-racing"}]
+    assert _match_series_link(annots, table_top=162.0) is None
+
+
+def test_match_series_link_returns_none_with_no_annots():
+    assert _match_series_link([], table_top=162.0) is None
