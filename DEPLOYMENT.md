@@ -29,9 +29,13 @@ That's it — `deploy-pages.yml` handles the rest on every push to `docs/**`.
 `deploy-worker.yml` will deploy `worker/` to
 `iracing-calendar-worker.<your-subdomain>.workers.dev` the first time it runs
 (triggered by any push to `worker/**` or `shared/**`, or manually — see below).
-A custom domain can be attached later from the Cloudflare dashboard (Workers &
-Pages → your worker → Settings → Triggers → Custom Domains) if you want a
-nicer URL than `*.workers.dev`.
+
+`worker/wrangler.toml` also declares a Workers **Custom Domain**
+(`ics.iracing.pmsoftwaredevs.com`), attached automatically on every
+`wrangler deploy` — no manual dashboard step, as long as that hostname's zone
+already exists and is active in Cloudflare (see "Custom domain setup" below).
+Until that zone is active, the deploy step that attaches the Custom Domain
+will fail; re-run `deploy-worker.yml` manually once DNS has propagated.
 
 ## 3. Set repo Variables
 
@@ -39,17 +43,51 @@ Settings → Secrets and variables → Actions → **Variables** (not Secrets �
 aren't sensitive; they end up in public page source once deployed either way):
 
 - `WORKER_BASE_URL` (**required**) — the Worker's public base URL, e.g.
-  `https://iracing-calendar-worker.your-subdomain.workers.dev`. Baked into
-  `docs/config.js` at Pages-deploy time so the site knows where to build
-  subscribe URLs. Without it, the site falls back to `http://localhost:8787`
-  (fine for local dev, wrong for production).
+  `https://ics.iracing.pmsoftwaredevs.com`. Baked into `docs/config.js` at
+  Pages-deploy time so the site knows where to build subscribe URLs. Without
+  it, the site falls back to `http://localhost:8787` (fine for local dev,
+  wrong for production).
 - `ADS_PUBLISHER_ID` (**optional**) — a Google AdSense publisher id
   (`ca-pub-...`). Leave unset to render the site with no ad slot at all.
 
-Also update `worker/wrangler.toml`'s `PAGES_BASE_URL` to your actual Pages URL
-(e.g. `https://<you>.github.io/<repo-name>`) — the Worker fetches
-`data/manifest.json` and `data/{season}.json` live from there on every
-request (see ARCHITECTURE.md), so it needs to know where "there" is.
+`worker/wrangler.toml`'s `PAGES_BASE_URL` already points at
+`https://iracing.pmsoftwaredevs.com` — the Worker fetches `data/manifest.json`
+and `data/{season}.json` live from there on every request (see
+ARCHITECTURE.md), so it needs to know where "there" is. Change it only if the
+site's custom domain ever changes.
+
+## Custom domain setup
+
+The site and the Worker live on two different hostnames under
+`pmsoftwaredevs.com`, deliberately kept independent — the site is plain
+GitHub Pages with no Cloudflare involvement, and the Worker's hostname is
+fully owned by Cloudflare with no origin fallback (see `worker/wrangler.toml`
+for why). This means the two are set up completely separately:
+
+**`iracing.pmsoftwaredevs.com` (the site):**
+
+1. At your DNS provider, add a `CNAME` record:
+   `iracing.pmsoftwaredevs.com` → `pmsoftwaredevs.github.io.`
+2. Repo Settings → Pages → **Custom domain** → enter
+   `iracing.pmsoftwaredevs.com` → Save. GitHub checks the DNS and, once it
+   resolves, provisions a Let's Encrypt certificate automatically (can take a
+   few minutes to a few hours).
+3. Once the certificate is issued, tick **Enforce HTTPS**.
+
+**`ics.iracing.pmsoftwaredevs.com` (the Worker):**
+
+1. In Cloudflare, add a new zone named exactly `ics.iracing.pmsoftwaredevs.com`
+   (Add a Site → enter that full hostname, not just `pmsoftwaredevs.com`).
+   This only delegates that one subdomain — it does not touch any other DNS
+   on `pmsoftwaredevs.com` (mail included).
+2. Cloudflare assigns two nameservers for that zone. At your DNS provider, add
+   an `NS` record delegating `ics.iracing.pmsoftwaredevs.com` to those two
+   nameservers.
+3. Wait for the zone to show **Active** in the Cloudflare dashboard (DNS
+   propagation, usually well under an hour).
+4. Run (or re-run) `deploy-worker.yml` — `worker/wrangler.toml`'s `routes`
+   entry attaches the Custom Domain automatically on deploy. No manual step
+   in the Cloudflare dashboard needed once the zone is active.
 
 ## 4. First-run bootstrap order
 
@@ -90,7 +128,10 @@ Worker after rotating its API token.
   (ARCHITECTURE.md), not a bug.
 - **`deploy-worker.yml` fails at the `wrangler deploy` step**: usually an
   expired/missing `CLOUDFLARE_API_TOKEN` or wrong `CLOUDFLARE_ACCOUNT_ID` —
-  re-check the repo Secrets from step 2.
+  re-check the repo Secrets from step 2. If the error specifically mentions
+  the Custom Domain / route, the `ics.iracing.pmsoftwaredevs.com` zone likely
+  isn't **Active** yet (see "Custom domain setup") — re-run the workflow once
+  it is.
 - **`build-cache.yml` fails to push**: the default `GITHUB_TOKEN` needs
   `contents: write` (already set in the workflow) — if branch protection on
   `main` blocks Actions from pushing directly, either relax that for this
