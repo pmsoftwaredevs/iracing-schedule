@@ -150,6 +150,32 @@ def test_signup_with_no_selections_is_rejected(client):
     assert response.status_code == 400
 
 
+def test_delete_removes_user_and_selections(client, db_engine):
+    response = client.post(
+        "/select",
+        data={
+            "name": "Sam",
+            "email": "sam@example.com",
+            "series_ids": [str(client.series_id)],
+            "slot_series_id": [str(client.series_id)],
+            "slot_day": ["2"],
+            "slot_time": ["19:00"],
+        },
+    )
+    token = _token_from_url(response.url)
+
+    delete_response = client.post(f"/u/{token}/delete")
+    assert delete_response.status_code == 200
+    assert delete_response.url.path == "/manage"
+
+    with Session(db_engine) as session:
+        assert session.exec(select(User).where(User.token == token)).first() is None
+        assert session.exec(select(Timeslot)).all() == []
+
+    assert client.get(f"/u/{token}").status_code == 404
+    assert client.post(f"/u/{token}/delete").status_code == 404
+
+
 def test_recovery_lookup_for_unknown_email_gives_same_confirmation(client, monkeypatch):
     sent = []
     monkeypatch.setattr(

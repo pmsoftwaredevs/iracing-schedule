@@ -16,7 +16,7 @@ from app.config import get_settings
 from app.db import get_session, init_db
 from app.email import send_recovery_email, send_signup_email
 from app.ics_builder import build_calendar
-from app.models import ScheduleWeek, Selection, Series, SpecialEvent, Timeslot, User
+from app.models import NotificationLog, ScheduleWeek, Selection, Series, SpecialEvent, Timeslot, User
 from app.scheduler import bootstrap_if_needed, build_scheduler
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
@@ -279,6 +279,24 @@ async def update_selection(request: Request, token: str, session: SessionDep):
     _apply_selections(session, user, form)
 
     return RedirectResponse(url=f"/u/{token}", status_code=303)
+
+
+@app.post("/u/{token}/delete")
+def delete_user(token: str, session: SessionDep):
+    user = session.exec(select(User).where(User.token == token)).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="Unknown token")
+
+    for selection in user.selections:
+        for slot in selection.timeslots:
+            session.delete(slot)
+        session.delete(selection)
+    for log in session.exec(select(NotificationLog).where(NotificationLog.user_id == user.id)).all():
+        session.delete(log)
+    session.delete(user)
+    session.commit()
+
+    return RedirectResponse(url="/manage", status_code=303)
 
 
 @app.get("/u/{token}/calendar.ics")

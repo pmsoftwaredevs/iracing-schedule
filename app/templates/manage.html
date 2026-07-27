@@ -36,4 +36,12 @@
   {% endfor %}
 </div>
 <p><a href="/u/{{ user.token }}/edit">Edit my selections</a></p>
+
+<div class="danger-zone">
+  <h2>Danger zone</h2>
+  <p class="gmt-hint">Permanently deletes this link, your selections, and your calendar subscription. This cannot be undone.</p>
+  <form method="post" action="/u/{{ user.token }}/delete" onsubmit="return confirm('Remove this link and all of its selections? This cannot be undone.');">
+    <button type="submit" class="btn-danger">Remove this link and its settings</button>
+  </form>
+</div>
 {% endblock %}
