@@ -15,6 +15,27 @@
   <div class="series-card{% if selection.special_event and selection.special_event.date_end < now %} event-card{% endif %}">
     {% if selection.series %}
       <div class="series-name">{{ selection.series.name }}</div>
+      {% set current_week = series_current_week.get(selection.series_id) %}
+      {% if current_week %}
+      <details class="schedule">
+        <summary>
+          <span class="chevron">&#9656;</span>
+          <span class="current-track {% if current_week.date_end < now %}is-final{% endif %}">
+            <span class="dot"></span>
+            W{{ current_week.week_number }} &middot; {{ current_week.date_start.strftime('%Y-%m-%d') }} &middot; {{ current_week.track_name }}
+          </span>
+        </summary>
+        <ol class="schedule-list">
+          {% for week in series_weeks.get(selection.series_id, []) %}
+          <li class="{% if week.date_start <= now <= week.date_end %}is-current{% endif %}">
+            <span class="week-num">W{{ week.week_number }}</span>
+            <span class="week-date">{{ week.date_start.strftime('%Y-%m-%d') }}</span>
+            <span class="week-track">{{ week.track_name }}</span>
+          </li>
+          {% endfor %}
+        </ol>
+      </details>
+      {% endif %}
       <ul class="schedule-list" style="border-top: none;">
         {% for slot in selection.timeslots %}
         {% set local = local_slot_label(slot.day_of_week, slot.time_gmt) %}

@@ -219,13 +219,26 @@ def manage(request: Request, token: str, session: SessionDep):
         raise HTTPException(status_code=404, detail="Unknown token")
     settings = get_settings()
     subscribe_url = f"{settings.base_url}/u/{user.token}/calendar.ics"
+    now = datetime.now(UTC).replace(tzinfo=None)
+
+    series_weeks: dict[int, list[ScheduleWeek]] = {}
+    series_current_week: dict[int, ScheduleWeek | None] = {}
+    for selection in user.selections:
+        if selection.series is None or selection.series_id is None:
+            continue
+        weeks = sorted(selection.series.weeks, key=lambda w: w.week_number)
+        series_weeks[selection.series_id] = weeks
+        series_current_week[selection.series_id] = _current_or_next_week(weeks, now)
+
     return templates.TemplateResponse(
         request,
         "manage.html",
         {
             "user": user,
             "subscribe_url": subscribe_url,
-            "now": datetime.now(UTC).replace(tzinfo=None),
+            "now": now,
+            "series_weeks": series_weeks,
+            "series_current_week": series_current_week,
             "local_slot_label": lambda dow, t: _local_slot_label(dow, t, user.timezone),
         },
     )

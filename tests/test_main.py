@@ -3,10 +3,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine, select
 
+from datetime import UTC, datetime, timedelta
+
 import app.main as main_module
 from app.db import get_session
 from app.main import app
-from app.models import Series, Timeslot, User
+from app.models import ScheduleWeek, Series, Timeslot, User
 
 
 @pytest.fixture
@@ -148,6 +150,36 @@ def test_signup_with_no_selections_is_rejected(client):
         data={"name": "Jordan", "email": "jordan@example.com"},
     )
     assert response.status_code == 400
+
+
+def test_manage_page_shows_current_track_schedule(client, db_engine):
+    now = datetime.now(UTC).replace(tzinfo=None)
+    with Session(db_engine) as session:
+        session.add(
+            ScheduleWeek(
+                series_id=client.series_id,
+                week_number=3,
+                track_name="Qualcomm Base",
+                date_start=now - timedelta(days=1),
+                date_end=now + timedelta(days=6),
+            )
+        )
+        session.commit()
+
+    response = client.post(
+        "/select",
+        data={
+            "name": "Robin",
+            "email": "robin@example.com",
+            "series_ids": [str(client.series_id)],
+            "slot_series_id": [str(client.series_id)],
+            "slot_day": ["2"],
+            "slot_time": ["19:00"],
+        },
+    )
+    assert "Qualcomm Base" in response.text
+    assert "current-track" in response.text
+    assert 'class="schedule"' in response.text
 
 
 def test_delete_removes_user_and_selections(client, db_engine):
