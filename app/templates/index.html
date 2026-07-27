@@ -36,8 +36,11 @@
       </div>
     </div>
     <div class="control-row">
-      <input type="text" id="filter-input" class="filter-input" autocomplete="off"
-             placeholder="Filter championships and special events…">
+      <div class="filter-wrap">
+        <input type="text" id="filter-input" class="filter-input" autocomplete="off"
+               placeholder="Filter championships and special events…">
+        <button type="button" id="filter-clear" class="filter-clear" hidden aria-label="Clear filter">&times;</button>
+      </div>
     </div>
   </div>
 
@@ -288,8 +291,10 @@ updateAllSlotRows();
 
 // ---- Filter championships / special events by name ----
 var filterInput = document.getElementById('filter-input');
+var filterClear = document.getElementById('filter-clear');
 function applyFilter() {
   var query = filterInput.value.trim().toLowerCase();
+  filterClear.hidden = filterInput.value.length === 0;
   document.querySelectorAll('.tab-panel').forEach(function (panel) {
     var cards = panel.querySelectorAll('.series-card');
     var anyVisible = false;
@@ -311,6 +316,11 @@ function applyFilter() {
   });
 }
 filterInput.addEventListener('input', applyFilter);
+filterClear.addEventListener('click', function () {
+  filterInput.value = '';
+  applyFilter();
+  filterInput.focus();
+});
 
 {% if not existing_user %}
 // Default the timezone dropdown to the browser's detected zone for new signups —

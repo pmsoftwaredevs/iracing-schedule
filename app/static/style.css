@@ -129,7 +129,28 @@ a:hover { color: var(--green-dark); }
   justify-content: space-between;
 }
 
-.filter-input { width: 100%; font-size: 0.88rem; }
+.filter-wrap { position: relative; width: 100%; }
+
+.filter-input { width: 100%; font-size: 0.88rem; padding-right: 2.1rem; }
+
+.filter-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.filter-clear:hover { background: var(--surface-sunken); color: var(--ink); }
+.filter-clear[hidden] { display: none; }
 
 .no-matches { color: var(--ink-faint); font-size: 0.88rem; padding: 0.5rem 0.1rem; }
 .no-matches[hidden] { display: none; }
