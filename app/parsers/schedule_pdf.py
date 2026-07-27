@@ -31,7 +31,11 @@ import pdfplumber
 
 WEEK_RE = re.compile(r"^week\s+(\d+)\s*\((\d{4}-\d{2}-\d{2})\)", re.IGNORECASE)
 SEASON_SUFFIX_RE = re.compile(r"\s*-\s*\d{4}\s+Season\s+\d+.*$", re.IGNORECASE)
-CADENCE_LINE_RE = re.compile(r"^races every.*$", re.IGNORECASE | re.MULTILINE)
+# Not every cadence line contains the word "every" — day-specific ones like "Races
+# Thur & Sat at 10, 19 GMT & Fri & Sun at 1,4 GMT" don't, so this must only anchor
+# on "Races" itself (see app/parsers/race_cadence.py for how the line is parsed).
+CADENCE_LINE_RE = re.compile(r"^races\b.*$", re.IGNORECASE | re.MULTILINE)
+DURATION_MINS_RE = re.compile(r"(\d+)\s*mins?\b", re.IGNORECASE)
 
 
 @dataclass
@@ -40,6 +44,7 @@ class ParsedWeek:
     track_name: str
     date_start: datetime
     date_end: datetime
+    duration_minutes: int | None = None
 
 
 @dataclass
@@ -65,10 +70,26 @@ def _series_name(header_cell: str) -> str:
 
 
 def _cadence_text(header_cell: str) -> str:
-    """The "Races every ..." line from the series header block, e.g. "Races every
-    even 2 hours at :30 past" — parsed further by app/parsers/race_cadence.py."""
+    """The "Races ..." line from the series header block, e.g. "Races every even 2
+    hours at :30 past" or the day-specific "Races Thur & Sat at 10, 19 GMT & Fri &
+    Sun at 1,4 GMT" — parsed further by app/parsers/race_cadence.py. A handful of
+    series append a separate qualifying cadence after a "|", e.g. "Races on every
+    hour on the hour | Qualifying every hour at :30" — that part describes
+    qualifying, not the race itself, so it's dropped rather than parsed as extra
+    race session times."""
     match = CADENCE_LINE_RE.search(header_cell)
-    return match.group(0).strip() if match else ""
+    if not match:
+        return ""
+    return match.group(0).split("|")[0].strip()
+
+
+def _duration_minutes(cell: str) -> int | None:
+    """Some series state an explicit session length in the week row's rightmost
+    cell, e.g. "120\\nmins" (others state a lap count instead, e.g. "69 laps", in
+    which case there's nothing to extract and the caller falls back to estimating
+    from session gaps — see app/ics_builder.py)."""
+    match = DURATION_MINS_RE.search(cell.replace("\n", " "))
+    return int(match.group(1)) if match else None
 
 
 def _parse_row(row: list[str | None]) -> ParsedWeek | None:
@@ -87,6 +108,7 @@ def _parse_row(row: list[str | None]) -> ParsedWeek | None:
         track_name=_track_name(track_cell),
         date_start=date_start,
         date_end=date_start + timedelta(days=6),
+        duration_minutes=_duration_minutes(cells[3]) if len(cells) > 3 else None,
     )
 
 

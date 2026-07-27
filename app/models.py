@@ -39,7 +39,10 @@ class Series(SQLModel, table=True):
     license_level: str = ""
     cadence_text: str = ""  # e.g. "Races every even 2 hours at :30 past", from the PDF
     link_url: str | None = None  # "go racing" link to the series on members-ng.iracing.com, from the PDF
-    session_times: list[str] = Field(default_factory=list, sa_column=Column(JSON))  # sorted "HH:MM" GMT
+    # day_of_week (0=Monday..6=Sunday, as a JSON string key) -> sorted "HH:MM" GMT
+    # times that day, from app/parsers/race_cadence.py. A day absent from this dict
+    # has no sessions at all — e.g. a Thu/Sat-only series omits Mon/Tue/Wed/Fri/Sun.
+    session_times_by_day: dict[str, list[str]] = Field(default_factory=dict, sa_column=Column(JSON))
     raw_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
 
     season: Season | None = Relationship(back_populates="series")
@@ -53,6 +56,7 @@ class ScheduleWeek(SQLModel, table=True):
     track_name: str
     date_start: datetime
     date_end: datetime
+    duration_minutes: int | None = None  # explicit session length from the PDF, when stated (see app/parsers/schedule_pdf.py)
     raw_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
 
     series: Series | None = Relationship(back_populates="weeks")

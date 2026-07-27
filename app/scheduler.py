@@ -50,20 +50,21 @@ logger = logging.getLogger(__name__)
 
 SCHEDULE_CACHE_DIR = Path("cache/schedules")
 
-# Used when a series' cadence text doesn't match any known pattern (e.g. the
-# irregular "every other Saturday at ..." NASCAR-style schedules) — every 30
-# minutes is a reasonably fine-grained default so the timeslot picker always has
-# something to offer rather than being empty.
+# Used when a series' cadence text doesn't match any known pattern at all — every
+# 30 minutes, every day of the week, is a reasonably fine-grained default so the
+# timeslot picker always has something to offer rather than being empty.
 FALLBACK_SESSION_TIMES = [time(hour, minute) for hour in range(24) for minute in (0, 30)]
 
 
-def _session_times_for(cadence_text: str) -> list[str]:
+def _session_times_for(cadence_text: str) -> dict[str, list[str]]:
     parsed = parse_cadence(cadence_text) if cadence_text else None
     if parsed is None:
         if cadence_text:
             logger.warning("could not parse cadence %r, falling back to a default grid", cadence_text)
-        parsed = FALLBACK_SESSION_TIMES
-    return [t.strftime("%H:%M") for t in parsed]
+        times_by_day = {day: FALLBACK_SESSION_TIMES for day in range(7)}
+    else:
+        times_by_day = parsed.times_by_day
+    return {str(day): [t.strftime("%H:%M") for t in times] for day, times in times_by_day.items()}
 
 
 def check_upcoming_seasons(settings: Settings) -> None:
@@ -129,7 +130,7 @@ def fetch_season_schedule(settings: Settings, year: int, quarter: int, season_st
                 name=parsed.name,
                 cadence_text=parsed.cadence_text,
                 link_url=parsed.link_url,
-                session_times=_session_times_for(parsed.cadence_text),
+                session_times_by_day=_session_times_for(parsed.cadence_text),
             )
             session.add(series)
             session.flush()
@@ -141,6 +142,7 @@ def fetch_season_schedule(settings: Settings, year: int, quarter: int, season_st
                         track_name=week.track_name,
                         date_start=week.date_start,
                         date_end=week.date_end,
+                        duration_minutes=week.duration_minutes,
                     )
                 )
             new_series.append(series)

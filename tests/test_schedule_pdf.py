@@ -28,6 +28,20 @@ def test_parse_row_extracts_week_track_and_derives_end_date():
     assert parsed.track_name == "Charlotte Motor Speedway - Legends Oval"
     assert parsed.date_start == datetime(2025, 9, 16)
     assert parsed.date_end == datetime(2025, 9, 22)  # Tuesday-to-Monday, 6 days later
+    assert parsed.duration_minutes is None  # "40 laps" states laps, not a duration
+
+
+def test_parse_row_extracts_explicit_duration_in_minutes():
+    row = [
+        "Week 1 (2026-06-27)",
+        "Watkins Glen International - Boot\n(2026-06-27 15:15 1x)",
+        "76°F/24°C, Rain chance None, Grid by\nclass, Rolling start.",
+        "120\nmins",
+    ]
+
+    parsed = _parse_row(row)
+
+    assert parsed.duration_minutes == 120
 
 
 def test_parse_row_returns_none_for_non_week_rows():
@@ -56,6 +70,29 @@ def test_cadence_text_extracted_from_header_cell():
 
 def test_cadence_text_empty_when_no_cadence_line_present():
     assert _cadence_text("Some Series - 2026 Season 3\nNo cadence info here") == ""
+
+
+def test_cadence_text_drops_trailing_qualifying_clause():
+    """A "| Qualifying ..." suffix describes qualifying, not the race itself —
+    dropped so it doesn't get parsed as extra race session times."""
+    header = (
+        "Ring Meister by LVRY - 2026 Season 3\nSome car\nClass D 4.0\n"
+        "Races on every hour on the hour | Qualifying every hour at :30\n"
+        "Min entries for official: 6"
+    )
+    assert _cadence_text(header) == "Races on every hour on the hour"
+
+
+def test_cadence_text_extracted_from_day_specific_header_cell():
+    """Day-specific cadences (e.g. Formula A - Grand Prix Tour) don't contain the
+    word "every" at all, unlike interval-based ones — the extraction regex must
+    anchor on "Races" alone, not "Races every"."""
+    header = (
+        "Formula A - Grand Prix Tour - Fixed - 2026 Season\nMercedes-AMG W13 E Performance\n"
+        "Class D 4.0 --> Pro/WC 4.0\nRaces Thur & Sat at 10, 19 GMT & Fri & Sun at 1,4 GMT\n"
+        "Min entries for official: 6 | Split at: 24 | Drops: 4"
+    )
+    assert _cadence_text(header) == "Races Thur & Sat at 10, 19 GMT & Fri & Sun at 1,4 GMT"
 
 
 def test_continuation_table_detected_and_not_treated_as_new_series():
