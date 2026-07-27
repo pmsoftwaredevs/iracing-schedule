@@ -1,0 +1,23 @@
+services:
+  iracing-calendar:
+    build: .
+    image: iracing-calendar:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Overrides whatever's in .env — the DB must live in the mounted /app/data
+      # volume, not the image's writable layer, or it's lost on every recreate.
+      IRCAL_DATABASE_URL: sqlite:////app/data/iracing_calendar.db
+    volumes:
+      - ircal-data:/app/data
+      - ircal-cache:/app/cache
+    # Bound to localhost only — Apache is the public entry point and reverse
+    # proxies here. Drop the "127.0.0.1:" prefix only if Apache runs on a
+    # different host and needs to reach this one over the network.
+    ports:
+      - "127.0.0.1:6337:6337"
+
+volumes:
+  ircal-data:
+  ircal-cache:

@@ -30,6 +30,11 @@ source .venv/bin/activate
 python -m pytest
 ```
 
+## Deploy
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for running this in Docker behind an
+Apache 2 reverse proxy.
+
 ## Status
 
 Working end-to-end against real, official, live sources (verified this session with a
