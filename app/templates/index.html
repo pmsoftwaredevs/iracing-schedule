@@ -1,88 +1,136 @@
 {% extends "base.html" %}
 {% block title %}{% if existing_user %}Edit your iRacing calendar{% else %}iRacing Calendar — Pick your championships{% endif %}{% endblock %}
 {% block content %}
-<h1>{% if existing_user %}Edit your selections{% else %}Pick your championships{% endif %}</h1>
-{% if not existing_user %}
-<p><a href="/manage">Already have a calendar? Manage it</a></p>
-{% endif %}
+<div class="masthead">
+  <span class="kicker">GMT · Race Control</span>
+  <h1>{% if existing_user %}Edit your selections{% else %}Pick your championships{% endif %}</h1>
+  <p class="lede">Browse championships and special events, see which track is up this week, and pick the weekly sessions you want on your calendar.</p>
+  {% if not existing_user %}
+  <p class="manage-link"><a href="/manage">Already have a calendar? Manage it</a></p>
+  {% endif %}
+</div>
 
 <form method="post" action="{{ action_url }}" id="selection-form">
-  <fieldset>
-    <legend>Your timezone</legend>
-    <p>
-      <label>For your reference — session times below are iRacing's actual GMT schedule
+  <div class="control-bar">
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab-btn active" data-tab="championships">Championships</button>
+      <button type="button" class="tab-btn" data-tab="events">Special Events</button>
+    </div>
+    <div class="tz-picker">
+      <label>Your timezone
         <select name="timezone" id="timezone-select">
           {% for tz in timezones %}
           <option value="{{ tz }}" {% if tz == selected_timezone %}selected{% endif %}>{{ tz }}</option>
           {% endfor %}
         </select>
       </label>
-    </p>
-  </fieldset>
-
-  {% for group in series_groups %}
-  <fieldset>
-    <legend>{{ group.label }}</legend>
-    {% if group.subtitle %}<h2 class="group-subtitle">{{ group.subtitle }}</h2>{% endif %}
-    {% for s in group.series %}
-    <div class="series-row">
-      <label>
-        <input type="checkbox" name="series_ids" value="{{ s.id }}" class="series-checkbox"
-               data-series-id="{{ s.id }}" {% if s.id in selected_series_ids %}checked{% endif %}>
-        {{ s.name }} <span class="gmt-hint">({{ s.license_level }})</span>
-      </label>
     </div>
-    <div class="slots-container" data-series-id="{{ s.id }}" data-times="{{ s.session_times|join(',') }}">
-      {% for slot in timeslots_by_series.get(s.id, []) %}
-      <div class="slot-row">
-        <input type="hidden" name="slot_series_id" value="{{ s.id }}">
-        <select name="slot_day">
-          {% for value, label in [(1,'Tuesday'),(2,'Wednesday'),(3,'Thursday'),(4,'Friday'),(5,'Saturday'),(6,'Sunday'),(0,'Monday')] %}
-          <option value="{{ value }}" {% if slot.day_of_week == value %}selected{% endif %}>{{ label }}</option>
+  </div>
+
+  <div class="tab-panel" data-panel="championships">
+    {% for group in series_groups %}
+    <div class="group-section">
+      <div class="group-heading">
+        <h2>{{ group.label }}</h2>
+        {% if group.subtitle %}<span class="group-subtitle">{{ group.subtitle }}</span>{% endif %}
+      </div>
+      {% for s in group.series %}
+      {% set weeks = series_weeks.get(s.id, []) %}
+      {% set current_week = series_current_week.get(s.id) %}
+      <div class="series-card {% if s.id in selected_series_ids %}is-checked{% endif %}" data-series-card="{{ s.id }}">
+        <div class="series-head">
+          <input type="checkbox" name="series_ids" value="{{ s.id }}" class="series-checkbox"
+                 data-series-id="{{ s.id }}" {% if s.id in selected_series_ids %}checked{% endif %}>
+          <div>
+            <label for="series-{{ s.id }}"><span class="series-name">{{ s.name }}</span></label>
+            {% if s.license_level %}<span class="series-meta">{{ s.license_level }}</span>{% endif %}
+
+            {% if current_week %}
+            <details class="schedule">
+              <summary>
+                <span class="chevron">&#9656;</span>
+                <span class="current-track {% if current_week.date_end < now %}is-final{% endif %}">
+                  <span class="dot"></span>
+                  W{{ current_week.week_number }} &middot; {{ current_week.date_start.strftime('%Y-%m-%d') }} &middot; {{ current_week.track_name }}
+                </span>
+              </summary>
+              <ol class="schedule-list">
+                {% for week in weeks %}
+                <li class="{% if week.date_start <= now <= week.date_end %}is-current{% endif %}">
+                  <span class="week-num">W{{ week.week_number }}</span>
+                  <span class="week-date">{{ week.date_start.strftime('%Y-%m-%d') }}</span>
+                  <span class="week-track">{{ week.track_name }}</span>
+                </li>
+                {% endfor %}
+              </ol>
+            </details>
+            {% endif %}
+          </div>
+        </div>
+        <div class="slots-container" data-series-id="{{ s.id }}" data-times="{{ s.session_times|join(',') }}">
+          {% for slot in timeslots_by_series.get(s.id, []) %}
+          <div class="slot-row">
+            <input type="hidden" name="slot_series_id" value="{{ s.id }}">
+            <select name="slot_day">
+              {% for value, label in [(1,'Tuesday'),(2,'Wednesday'),(3,'Thursday'),(4,'Friday'),(5,'Saturday'),(6,'Sunday'),(0,'Monday')] %}
+              <option value="{{ value }}" {% if slot.day_of_week == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            {% set saved_time = slot.time_gmt.strftime('%H:%M') %}
+            {% set slot_options = s.session_times if saved_time in s.session_times else s.session_times + [saved_time] %}
+            <select name="slot_time">
+              {% for option in slot_options %}
+              <option value="{{ option }}" {% if saved_time == option %}selected{% endif %}>{{ option }} GMT</option>
+              {% endfor %}
+            </select>
+            <span class="local-badge"></span>
+            <button type="button" class="remove-slot">Remove</button>
+          </div>
           {% endfor %}
-        </select>
-        {% set saved_time = slot.time_gmt.strftime('%H:%M') %}
-        {% set slot_options = s.session_times if saved_time in s.session_times else s.session_times + [saved_time] %}
-        <select name="slot_time">
-          {% for option in slot_options %}
-          <option value="{{ option }}" {% if saved_time == option %}selected{% endif %}>{{ option }} GMT</option>
-          {% endfor %}
-        </select>
-        <button type="button" class="remove-slot">Remove</button>
+        </div>
+        <button type="button" class="add-slot" data-series-id="{{ s.id }}">+ Add weekly timeslot</button>
       </div>
       {% endfor %}
     </div>
-    <button type="button" class="add-slot" data-series-id="{{ s.id }}">+ Add weekly timeslot</button>
     {% endfor %}
-  </fieldset>
-  {% endfor %}
+  </div>
 
-  {% if special_events %}
-  <fieldset>
-    <legend>Special Events</legend>
-    <h2 class="group-subtitle">{{ special_events_year }}</h2>
-    {% for event in special_events %}
-    <div class="series-row">
-      <label class="{% if event.date_end < now %}event-past{% endif %}">
-        <input type="checkbox" name="special_event_ids" value="{{ event.id }}"
-               {% if event.id in selected_special_event_ids %}checked{% endif %}>
-        {{ event.name }}
-        <span class="gmt-hint">
-          ({{ event.date_start.strftime('%Y-%m-%d') }}{% if event.date_end != event.date_start %} – {{ event.date_end.strftime('%Y-%m-%d') }}{% endif %})
-          {% if event.track_name %}— {{ event.track_name }}{% endif %}
-          {% if event.car_class %}— {{ event.car_class }}{% endif %}
-        </span>
-      </label>
+  <div class="tab-panel" data-panel="events" hidden>
+    {% if special_events %}
+    <div class="group-section">
+      <div class="group-heading">
+        <h2>Special Events</h2>
+        <span class="group-subtitle">{{ special_events_year }}</span>
+      </div>
+      {% for event in special_events %}
+      <div class="series-card event-card {% if event.id in selected_special_event_ids %}is-checked{% endif %}">
+        <div class="series-head">
+          <input type="checkbox" name="special_event_ids" value="{{ event.id }}"
+                 {% if event.id in selected_special_event_ids %}checked{% endif %}>
+          <div>
+            <label class="{% if event.date_end < now %}event-past{% endif %}">
+              <span class="series-name">{{ event.name }}</span>
+            </label>
+            <span class="gmt-hint">
+              ({{ event.date_start.strftime('%Y-%m-%d') }}{% if event.date_end != event.date_start %} – {{ event.date_end.strftime('%Y-%m-%d') }}{% endif %})
+              {% if event.track_name %}— {{ event.track_name }}{% endif %}
+              {% if event.car_class %}— {{ event.car_class }}{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </fieldset>
-  {% endif %}
+    {% else %}
+    <p class="gmt-hint">No special events announced right now.</p>
+    {% endif %}
+  </div>
 
-  <fieldset>
-    <legend>Your details</legend>
-    <p><label>Name <input type="text" name="name" value="{{ existing_user.name if existing_user else '' }}" required></label></p>
-    <p><label>Email <input type="email" name="email" value="{{ existing_user.email if existing_user else '' }}" required></label></p>
-  </fieldset>
+  <div class="detail-block">
+    <h2>Your details</h2>
+    <p><label for="name-input">Name</label><input id="name-input" type="text" name="name" value="{{ existing_user.name if existing_user else '' }}" required></p>
+    <p><label for="email-input">Email</label><input id="email-input" type="email" name="email" value="{{ existing_user.email if existing_user else '' }}" required></p>
+  </div>
 
   <button type="submit">{% if existing_user %}Save changes{% else %}Create my calendar{% endif %}</button>
 </form>
@@ -100,11 +148,25 @@
       <option value="0">Monday</option>
     </select>
     <select name="slot_time"></select>
+    <span class="local-badge"></span>
     <button type="button" class="remove-slot">Remove</button>
   </div>
 </template>
 
 <script>
+// ---- Tabs ----
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var target = btn.dataset.tab;
+    document.querySelectorAll('.tab-panel').forEach(function (panel) {
+      panel.hidden = panel.dataset.panel !== target;
+    });
+  });
+});
+
+// ---- Timeslot rows ----
 var slotTemplate = document.getElementById('slot-row-template');
 
 function addSlotRow(seriesId) {
@@ -122,7 +184,10 @@ function addSlotRow(seriesId) {
   row.querySelector('.remove-slot').addEventListener('click', function (event) {
     event.target.closest('.slot-row').remove();
   });
+  var rowEl = row.querySelector('.slot-row');
+  wireSlotRow(rowEl);
   container.appendChild(row);
+  updateSlotRowLocal(container.querySelector('.slot-row:last-child'));
 }
 
 document.querySelectorAll('.add-slot').forEach(function (button) {
@@ -130,14 +195,7 @@ document.querySelectorAll('.add-slot').forEach(function (button) {
     var seriesId = button.dataset.seriesId;
     addSlotRow(seriesId);
     document.querySelector('.series-checkbox[data-series-id="' + seriesId + '"]').checked = true;
-  });
-});
-
-document.querySelectorAll('.slots-container').forEach(function (container) {
-  container.querySelectorAll('.remove-slot').forEach(function (button) {
-    button.addEventListener('click', function (event) {
-      event.target.closest('.slot-row').remove();
-    });
+    document.querySelector('.series-card[data-series-card="' + seriesId + '"]').classList.add('is-checked');
   });
 });
 
@@ -146,6 +204,8 @@ document.querySelectorAll('.slots-container').forEach(function (container) {
 // impossible to submit a pick with no timeslot.
 document.querySelectorAll('.series-checkbox').forEach(function (checkbox) {
   checkbox.addEventListener('change', function () {
+    var card = checkbox.closest('.series-card');
+    card.classList.toggle('is-checked', checkbox.checked);
     if (!checkbox.checked) {
       return;
     }
@@ -157,6 +217,67 @@ document.querySelectorAll('.series-checkbox').forEach(function (checkbox) {
   });
 });
 
+document.querySelectorAll('input[name="special_event_ids"]').forEach(function (checkbox) {
+  checkbox.addEventListener('change', function () {
+    checkbox.closest('.series-card').classList.toggle('is-checked', checkbox.checked);
+  });
+});
+
+// ---- Live local-timezone readout for each GMT timeslot ----
+// day_of_week here follows Python's convention (0=Monday...6=Sunday); JS Date's
+// getUTCDay()/Date.UTC() use 0=Sunday, so every conversion has to shift by one.
+function pyDowToJsDow(pyDow) { return (pyDow + 1) % 7; }
+
+function gmtSlotToLocalLabel(pyDow, hour, minute, timeZone) {
+  var targetJsDow = pyDowToJsDow(pyDow);
+  var now = new Date();
+  var daysAhead = (targetJsDow - now.getUTCDay() + 7) % 7;
+  var candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysAhead, hour, minute, 0));
+  if (daysAhead === 0 && candidate.getTime() <= now.getTime()) {
+    candidate = new Date(candidate.getTime() + 7 * 24 * 3600 * 1000);
+  }
+  try {
+    var weekday = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: timeZone }).format(candidate);
+    var time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: timeZone }).format(candidate);
+    return weekday + ' ' + time;
+  } catch (e) {
+    return null;
+  }
+}
+
+function updateSlotRowLocal(row) {
+  if (!row) return;
+  var tzSelect = document.getElementById('timezone-select');
+  var daySelect = row.querySelector('select[name="slot_day"]');
+  var timeSelect = row.querySelector('select[name="slot_time"]');
+  var badge = row.querySelector('.local-badge');
+  if (!tzSelect || !daySelect || !timeSelect || !badge) return;
+  var parts = (timeSelect.value || '').split(':');
+  if (parts.length !== 2) { badge.textContent = ''; return; }
+  var label = gmtSlotToLocalLabel(parseInt(daySelect.value, 10), parseInt(parts[0], 10), parseInt(parts[1], 10), tzSelect.value);
+  badge.textContent = label ? (label + ' local') : '';
+}
+
+function updateAllSlotRows() {
+  document.querySelectorAll('.slot-row').forEach(updateSlotRowLocal);
+}
+
+function wireSlotRow(row) {
+  row.querySelector('select[name="slot_day"]').addEventListener('change', function () { updateSlotRowLocal(row); });
+  row.querySelector('select[name="slot_time"]').addEventListener('change', function () { updateSlotRowLocal(row); });
+}
+
+document.querySelectorAll('.slot-row').forEach(function (row) {
+  row.querySelector('.remove-slot').addEventListener('click', function (event) {
+    event.target.closest('.slot-row').remove();
+  });
+  wireSlotRow(row);
+});
+
+document.getElementById('timezone-select').addEventListener('change', updateAllSlotRows);
+
+updateAllSlotRows();
+
 {% if not existing_user %}
 // Default the timezone dropdown to the browser's detected zone for new signups —
 // edits keep whatever the user already saved.
@@ -166,6 +287,7 @@ document.querySelectorAll('.series-checkbox').forEach(function (checkbox) {
     var select = document.getElementById('timezone-select');
     if (detected && select.querySelector('option[value="' + detected + '"]')) {
       select.value = detected;
+      updateAllSlotRows();
     }
   } catch (e) {}
 })();

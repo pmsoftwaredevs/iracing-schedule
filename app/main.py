@@ -1,9 +1,9 @@
 import logging
 from collections import defaultdict
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, time
+from datetime import UTC, datetime, time, timedelta
 from typing import Annotated
-from zoneinfo import available_timezones
+from zoneinfo import ZoneInfo, available_timezones
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
@@ -16,7 +16,7 @@ from app.config import get_settings
 from app.db import get_session, init_db
 from app.email import send_recovery_email, send_signup_email
 from app.ics_builder import build_calendar
-from app.models import Selection, Series, SpecialEvent, Timeslot, User
+from app.models import ScheduleWeek, Selection, Series, SpecialEvent, Timeslot, User
 from app.scheduler import bootstrap_if_needed, build_scheduler
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
@@ -61,23 +61,62 @@ def _series_group_label_and_subtitle(series: Series) -> tuple[str, str | None]:
     return f"{season.year} Season {season.quarter}", f"Starts {_format_date(season.start_date)}"
 
 
+def _current_or_next_week(weeks: list[ScheduleWeek], now: datetime) -> ScheduleWeek | None:
+    """The week whose track is "in use" right now, for the collapsed summary line —
+    the first not-yet-finished week, or the season's last week once it's all over."""
+    if not weeks:
+        return None
+    upcoming = [w for w in weeks if w.date_end >= now]
+    if upcoming:
+        return min(upcoming, key=lambda w: w.week_number)
+    return max(weeks, key=lambda w: w.week_number)
+
+
 def _browse_context(session: Session) -> dict:
     series = session.exec(select(Series)).all()
     special_events = session.exec(select(SpecialEvent)).all()
+    now = datetime.now(UTC).replace(tzinfo=None)
 
     groups: dict[str, dict] = {}
+    series_weeks: dict[int | None, list[ScheduleWeek]] = {}
+    series_current_week: dict[int | None, ScheduleWeek | None] = {}
     for s in series:
         label, subtitle = _series_group_label_and_subtitle(s)
         group = groups.setdefault(label, {"label": label, "subtitle": subtitle, "series": []})
         group["series"].append(s)
+        weeks = sorted(s.weeks, key=lambda w: w.week_number)
+        series_weeks[s.id] = weeks
+        series_current_week[s.id] = _current_or_next_week(weeks, now)
 
     return {
         "series_groups": list(groups.values()),
+        "series_weeks": series_weeks,
+        "series_current_week": series_current_week,
         "special_events": special_events,
         "special_events_year": datetime.now(UTC).year,
         "timezones": AVAILABLE_TIMEZONES,
-        "now": datetime.now(UTC).replace(tzinfo=None),
+        "now": now,
     }
+
+
+def _local_slot_label(day_of_week: int, time_gmt: time, tz_name: str) -> str | None:
+    """"Tue 09:30"-style label for the next occurrence of a GMT weekly timeslot,
+    converted into tz_name — the same "next occurrence" approach the live picker
+    uses in JS, kept server-side here since this page has no interactive timezone
+    control to react to."""
+    if tz_name == "UTC":
+        return None
+    try:
+        zone = ZoneInfo(tz_name)
+    except Exception:
+        return None
+    now = datetime.now(UTC)
+    days_ahead = (day_of_week - now.weekday()) % 7
+    candidate = datetime.combine(now.date(), time_gmt, tzinfo=UTC) + timedelta(days=days_ahead)
+    if days_ahead == 0 and candidate <= now:
+        candidate += timedelta(days=7)
+    local = candidate.astimezone(zone)
+    return f"{local.strftime('%a')} {local.strftime('%H:%M')}"
 
 
 def _clean_timezone(raw: str) -> str:
@@ -174,7 +213,12 @@ def manage(request: Request, token: str, session: SessionDep):
     return templates.TemplateResponse(
         request,
         "manage.html",
-        {"user": user, "subscribe_url": subscribe_url, "now": datetime.now(UTC).replace(tzinfo=None)},
+        {
+            "user": user,
+            "subscribe_url": subscribe_url,
+            "now": datetime.now(UTC).replace(tzinfo=None),
+            "local_slot_label": lambda dow, t: _local_slot_label(dow, t, user.timezone),
+        },
     )
 
 

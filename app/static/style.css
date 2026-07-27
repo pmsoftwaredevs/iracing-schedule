@@ -1,0 +1,426 @@
+/* iRacing Calendar — "timing sheet" design system.
+   Paper-and-ink program sheet, tabular-nums monospace for every time/date
+   (the one recurring material in this subject), flag-green + amber accents
+   used the way a race director's board would: sparingly, to mean something. */
+
+:root {
+  --paper: #f3f4f0;
+  --surface: #ffffff;
+  --surface-sunken: #eceee7;
+  --ink: #1a1d1a;
+  --ink-soft: #5b6058;
+  --ink-faint: #8b9089;
+  --line: #dedcd0;
+  --line-strong: #c7c5b7;
+  --green: #1f6f4a;
+  --green-dark: #144d33;
+  --green-wash: #e5f0ea;
+  --amber: #b5760f;
+  --amber-wash: #faf1de;
+  --red: #a5391f;
+  --red-wash: #f7e9e4;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Menlo", "Consolas", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --shadow: 0 1px 2px rgba(20, 22, 18, 0.05), 0 4px 14px rgba(20, 22, 18, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #16181b;
+    --surface: #1e2124;
+    --surface-sunken: #191b1e;
+    --ink: #edefe9;
+    --ink-soft: #a3a89e;
+    --ink-faint: #71766c;
+    --line: #303337;
+    --line-strong: #40444a;
+    --green: #3fae7f;
+    --green-dark: #2c8562;
+    --green-wash: #172b23;
+    --amber: #e4a33d;
+    --amber-wash: #2c2318;
+    --red: #e2694c;
+    --red-wash: #2e1e18;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+a { color: var(--green); }
+a:hover { color: var(--green-dark); }
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ---- Masthead ---- */
+
+.masthead {
+  padding: 2.25rem 0 1.25rem;
+}
+
+.masthead .kicker {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.masthead h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.masthead p.lede {
+  color: var(--ink-soft);
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+.masthead .manage-link { font-size: 0.85rem; margin-top: 0.6rem; }
+
+/* ---- Sticky control bar: tabs + timezone, always reachable while scrolling ---- */
+
+.control-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 0;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+
+.tab-btn {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab-btn:hover { color: var(--ink); }
+
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.tz-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.tz-picker label { display: flex; align-items: center; gap: 0.5rem; }
+
+select, input[type="text"], input[type="email"] {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+}
+
+#timezone-select { font-family: var(--mono); font-size: 0.8rem; max-width: 15rem; }
+
+.tab-panel[hidden] { display: none; }
+
+/* ---- Group sections ---- */
+
+.group-section { margin-bottom: 2rem; }
+
+.group-section .group-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0 0 0.75rem;
+}
+
+.group-heading h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.group-heading .group-subtitle {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+}
+
+/* ---- Series card ---- */
+
+.series-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.65rem;
+  box-shadow: var(--shadow);
+}
+
+.series-card.is-checked { border-color: var(--green); }
+
+.series-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.series-head input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  accent-color: var(--green);
+  flex-shrink: 0;
+}
+
+.series-head label { cursor: pointer; }
+
+.series-name { font-weight: 600; font-size: 0.98rem; }
+
+.series-meta {
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  font-family: var(--mono);
+  margin-left: 0.35rem;
+}
+
+/* Collapsed schedule summary: the "W1 - 2026-06-27 - Qualcomm Base" line */
+
+.schedule {
+  margin: 0.55rem 0 0 1.75rem;
+}
+
+.schedule summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.schedule summary::-webkit-details-marker { display: none; }
+
+.schedule summary .chevron {
+  display: inline-block;
+  transition: transform 0.15s ease;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+}
+
+.schedule[open] summary .chevron { transform: rotate(90deg); }
+
+.current-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  background: var(--green-wash);
+  color: var(--green-dark);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem 0.15rem 0.5rem;
+}
+
+.current-track .dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.current-track.is-final { background: var(--surface-sunken); color: var(--ink-faint); }
+.current-track.is-final .dot { background: var(--ink-faint); }
+
+.schedule-list {
+  list-style: none;
+  margin: 0.5rem 0 0.25rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.schedule-list li {
+  display: grid;
+  grid-template-columns: 3rem 6.5rem 1fr;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.3rem 0.15rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+
+.schedule-list .week-num {
+  font-family: var(--mono);
+  color: var(--ink-faint);
+}
+
+.schedule-list .week-date {
+  font-family: var(--mono);
+  color: var(--ink-soft);
+}
+
+.schedule-list li.is-current { background: var(--green-wash); }
+.schedule-list li.is-current .week-num { color: var(--green-dark); font-weight: 700; }
+
+/* ---- Timeslot rows ---- */
+
+.slots-container { margin: 0.5rem 0 0 1.75rem; }
+
+.slot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0.3rem 0;
+}
+
+.slot-row select { font-family: var(--mono); font-size: 0.8rem; }
+
+.local-badge {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--amber);
+  background: var(--amber-wash);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  white-space: nowrap;
+}
+
+.local-badge:empty { display: none; }
+
+.remove-slot, .add-slot {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  padding: 0.1rem 0.2rem;
+}
+
+.remove-slot:hover { color: var(--red); }
+
+.add-slot {
+  color: var(--green);
+  font-weight: 600;
+  margin: 0.4rem 0 0.2rem 1.75rem;
+  padding: 0;
+}
+
+.add-slot:hover { color: var(--green-dark); }
+
+/* ---- Special events ---- */
+
+.event-card { border-color: var(--line); }
+.event-card .series-name { font-weight: 600; }
+.event-past { text-decoration: line-through; opacity: 0.55; }
+
+/* ---- Detail fieldset (timezone / your details on the form) ---- */
+
+.detail-block {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.detail-block h2 {
+  font-size: 0.9rem;
+  margin: 0 0 0.7rem;
+}
+
+.detail-block p { margin: 0.5rem 0; }
+.detail-block label { display: block; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.2rem; }
+.detail-block input[type="text"], .detail-block input[type="email"] { width: 100%; max-width: 22rem; }
+
+button[type="submit"] {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 1.3rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button[type="submit"]:hover { background: var(--green-dark); }
+
+code {
+  font-family: var(--mono);
+  background: var(--surface-sunken);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.gmt-hint { color: var(--ink-faint); font-size: 0.85rem; }
+
+@media (max-width: 560px) {
+  .schedule-list li { grid-template-columns: 2.4rem 5.5rem 1fr; font-size: 0.78rem; }
+  .masthead h1 { font-size: 1.55rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

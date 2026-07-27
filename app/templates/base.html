@@ -4,22 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}iRacing Calendar{% endblock %}</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
-    h1, h2 { font-weight: 600; }
-    fieldset { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; padding: 0.75rem 1rem; }
-    legend { font-weight: 600; padding: 0 0.5rem; }
-    .series-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; }
-    .slot-row { display: flex; gap: 0.5rem; margin: 0.25rem 0 0.25rem 1.5rem; align-items: center; }
-    .add-slot { font-size: 0.85rem; cursor: pointer; color: #2a5adf; background: none; border: none; padding: 0; }
-    .gmt-hint { color: #666; font-size: 0.85rem; }
-    .event-past { text-decoration: line-through; opacity: 0.6; }
-    .group-subtitle { font-size: 0.9rem; font-weight: 400; color: #666; margin: -0.5rem 0 0.75rem; }
-    button[type=submit] { margin-top: 1rem; padding: 0.6rem 1.2rem; font-size: 1rem; cursor: pointer; }
-    code { background: #f2f2f2; padding: 0.15rem 0.4rem; border-radius: 4px; }
-  </style>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  {% block content %}{% endblock %}
+  <div class="page">
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>
