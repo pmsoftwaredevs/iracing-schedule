@@ -70,6 +70,14 @@ fresh empty DB — no iRacing account used anywhere):
   grid with a logged warning rather than guessing. `User.timezone` (defaulted from
   the browser via `Intl.DateTimeFormat`, editable) is kept for the user's own
   reference only, since session times are fixed by iRacing in GMT.
+- Each series' required license (Rookie/D/C/B/A/Pro-World-Champion) is parsed from
+  its schedule PDF header's promotion-range line (`app/parsers/schedule_pdf.py`,
+  e.g. "Rookie (1.0) --> Pro/WC (4.0)" -> Rookie; "Class C (4.0) --> Pro/WC (4.0)"
+  -> Class B, since an SR of 4.0 is iRacing's own auto-promotion threshold, so
+  that's effectively a Class B series). Shown as a colored letter badge (R/D/C/B/A/P,
+  iRacing's own per-license colors, `app/licenses.py`) next to each series on the
+  browse and manage pages, with checkbox filters to show/hide championships by
+  license while picking.
 - Special events render as proper all-day banners spanning their full announced
   date range inclusive (handles cross-month events like Firecracker 400, June 30 –
   July 6) rather than a zero-duration blip on the start date.

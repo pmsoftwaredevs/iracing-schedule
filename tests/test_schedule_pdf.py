@@ -4,6 +4,7 @@ from pathlib import Path
 from app.parsers.schedule_pdf import (
     _cadence_text,
     _is_continuation_table,
+    _license_level,
     _match_series_link,
     _parse_row,
     _series_name,
@@ -95,6 +96,41 @@ def test_cadence_text_extracted_from_day_specific_header_cell():
     assert _cadence_text(header) == "Races Thur & Sat at 10, 19 GMT & Fri & Sun at 1,4 GMT"
 
 
+def test_license_level_rookie_stays_rookie_with_no_lower_tier():
+    header = "Rookie Legends Cup by Simshop - 2025 Season 4\nLegends Ford '34 Coupe\nRookie (1.0) --> Pro/WC (4.0)"
+    assert _license_level(header) == "R"
+
+
+def test_license_level_bumped_up_a_tier_when_from_sr_is_the_promotion_threshold():
+    """A "Class C (4.0) --> Pro/WC (4.0)" line means a Class C driver at exactly the
+    auto-promotion threshold can enter — i.e. this is effectively a Class B series,
+    not Class C, so the displayed tier is bumped up one."""
+    header = (
+        "NASCAR Class A Series - 2026 Season 3\nNASCAR Cup Series Next Gen Chevrolet Camaro ZL1\n"
+        "Class B 4.0 --> Pro/WC 4.0\nRaces every even 2 hours at :30 past"
+    )
+    assert _license_level(header) == "A"
+
+
+def test_license_level_not_bumped_when_below_promotion_threshold():
+    header = "Some Series - 2026 Season 3\nSome car\nClass C (2.0) --> Pro/WC (4.0)\nRaces every hour"
+    assert _license_level(header) == "C"
+
+
+def test_license_level_top_tier_has_nothing_to_bump_into():
+    header = "Pro Series - 2026 Season 3\nSome car\nPro/WC (4.0) --> Pro/WC (4.0)\nRaces every hour"
+    assert _license_level(header) == "P"
+
+
+def test_license_level_without_arrow_still_parses_from_side():
+    header = "Ring Meister by LVRY - 2026 Season 3\nSome car\nClass D 4.0\nRaces on every hour on the hour"
+    assert _license_level(header) == "C"
+
+
+def test_license_level_empty_when_no_license_line_present():
+    assert _license_level("Some Series - 2026 Season 3\nNo license info here") == ""
+
+
 def test_continuation_table_detected_and_not_treated_as_new_series():
     header_table = [
         ["GT3 Fixed - 2025 Season 4\nSome GT3 car", None, None, None],
@@ -115,6 +151,7 @@ def test_parse_schedule_pdf_against_real_fixture_page():
     series = series_list[0]
     assert series.name == "Rookie Legends Cup by Simshop"
     assert series.cadence_text == "Races every 30 minutes"
+    assert series.license_level == "R"
     assert len(series.weeks) == 12
     assert series.weeks[0].week_number == 1
     assert series.weeks[0].track_name == "Charlotte Motor Speedway - Legends Oval"

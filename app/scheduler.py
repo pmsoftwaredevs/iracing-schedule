@@ -130,6 +130,7 @@ def fetch_season_schedule(settings: Settings, year: int, quarter: int, season_st
                 name=parsed.name,
                 cadence_text=parsed.cadence_text,
                 link_url=parsed.link_url,
+                license_level=parsed.license_level,
                 session_times_by_day=_session_times_for(parsed.cadence_text),
             )
             session.add(series)

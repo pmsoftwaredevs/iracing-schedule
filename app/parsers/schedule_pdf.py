@@ -29,6 +29,8 @@ from datetime import datetime, timedelta
 
 import pdfplumber
 
+from app.licenses import LICENSE_ORDER
+
 WEEK_RE = re.compile(r"^week\s+(\d+)\s*\((\d{4}-\d{2}-\d{2})\)", re.IGNORECASE)
 SEASON_SUFFIX_RE = re.compile(r"\s*-\s*\d{4}\s+Season\s+\d+.*$", re.IGNORECASE)
 # Not every cadence line contains the word "every" — day-specific ones like "Races
@@ -36,6 +38,22 @@ SEASON_SUFFIX_RE = re.compile(r"\s*-\s*\d{4}\s+Season\s+\d+.*$", re.IGNORECASE)
 # on "Races" itself (see app/parsers/race_cadence.py for how the line is parsed).
 CADENCE_LINE_RE = re.compile(r"^races\b.*$", re.IGNORECASE | re.MULTILINE)
 DURATION_MINS_RE = re.compile(r"(\d+)\s*mins?\b", re.IGNORECASE)
+# The header's license-range line, e.g. "Rookie (1.0) --> Pro/WC (4.0)" or
+# "Class C 4.0 --> Pro/WC 4.0" (parens optional). Only the left-hand license/SR
+# pair is captured — see _license_level for why that's the only part that matters.
+LICENSE_LINE_RE = re.compile(
+    r"^(rookie|class\s*[a-d]|pro\s*/\s*wc|pro\s*/\s*world\s*champion)\s*\(?\s*(\d+(?:\.\d+)?)\s*\)?",
+    re.IGNORECASE | re.MULTILINE,
+)
+_LICENSE_NAME_TO_CODE = {
+    "rookie": "R",
+    "class a": "A",
+    "class b": "B",
+    "class c": "C",
+    "class d": "D",
+    "pro/wc": "P",
+    "pro/world champion": "P",
+}
 
 
 @dataclass
@@ -53,6 +71,7 @@ class ParsedSeries:
     cadence_text: str
     weeks: list[ParsedWeek]
     link_url: str | None = None
+    license_level: str = ""
 
 
 class ScheduleParseError(ValueError):
@@ -81,6 +100,36 @@ def _cadence_text(header_cell: str) -> str:
     if not match:
         return ""
     return match.group(0).split("|")[0].strip()
+
+
+def _license_code(raw: str) -> str | None:
+    normalized = re.sub(r"\s+", " ", raw.strip().lower())
+    normalized = re.sub(r"\s*/\s*", "/", normalized)
+    return _LICENSE_NAME_TO_CODE.get(normalized)
+
+
+def _license_level(header_cell: str) -> str:
+    """The series' effective license tier (R/D/C/B/A/P), derived from the header's
+    promotion-range line, e.g. "Rookie (1.0) --> Pro/WC (4.0)" or "Class C (4.0) -->
+    Pro/WC (4.0)". Only the *lower* license/SR pair matters: an SR of 4.0 is
+    iRacing's own auto-promotion threshold (>4.00 SR bumps a driver to the next
+    license up), so a series gated at "Class C (4.0)" is in practice only reachable
+    by drivers who are already at that boundary — i.e. effectively a Class B series,
+    not Class C — so it's displayed one tier up from the literal text. A lower SR
+    like "Rookie (1.0)" is just the bottom of that license's range and is displayed
+    as-is."""
+    match = LICENSE_LINE_RE.search(header_cell)
+    if not match:
+        return ""
+    code = _license_code(match.group(1))
+    if code is None:
+        return ""
+    sr = float(match.group(2))
+    if sr >= 4.0:
+        idx = LICENSE_ORDER.index(code)
+        if idx + 1 < len(LICENSE_ORDER):
+            code = LICENSE_ORDER[idx + 1]
+    return code
 
 
 def _duration_minutes(cell: str) -> int | None:
@@ -133,6 +182,7 @@ def _parse_table(table: list[list[str | None]], link_url: str | None) -> ParsedS
         cadence_text=_cadence_text(table[0][0]),
         weeks=weeks,
         link_url=link_url,
+        license_level=_license_level(table[0][0]),
     )
 
 
