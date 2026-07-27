@@ -30,12 +30,8 @@ That's it — `deploy-pages.yml` handles the rest on every push to `docs/**`.
 `iracing-calendar-worker.<your-subdomain>.workers.dev` the first time it runs
 (triggered by any push to `worker/**` or `shared/**`, or manually — see below).
 
-`worker/wrangler.toml` also declares a Workers **Custom Domain**
-(`ics.iracing.pmsoftwaredevs.com`), attached automatically on every
-`wrangler deploy` — no manual dashboard step, as long as that hostname's zone
-already exists and is active in Cloudflare (see "Custom domain setup" below).
-Until that zone is active, the deploy step that attaches the Custom Domain
-will fail; re-run `deploy-worker.yml` manually once DNS has propagated.
+No custom domain is attached to the Worker — see "Custom domain setup" below
+for why, and what it would take to change that later.
 
 ## 3. Set repo Variables
 
@@ -43,10 +39,10 @@ Settings → Secrets and variables → Actions → **Variables** (not Secrets �
 aren't sensitive; they end up in public page source once deployed either way):
 
 - `WORKER_BASE_URL` (**required**) — the Worker's public base URL, e.g.
-  `https://ics.iracing.pmsoftwaredevs.com`. Baked into `docs/config.js` at
-  Pages-deploy time so the site knows where to build subscribe URLs. Without
-  it, the site falls back to `http://localhost:8787` (fine for local dev,
-  wrong for production).
+  `https://iracing-calendar-worker.your-subdomain.workers.dev`. Baked into
+  `docs/config.js` at Pages-deploy time so the site knows where to build
+  subscribe URLs. Without it, the site falls back to `http://localhost:8787`
+  (fine for local dev, wrong for production).
 - `ADS_PUBLISHER_ID` (**optional**) — a Google AdSense publisher id
   (`ca-pub-...`). Leave unset to render the site with no ad slot at all.
 
@@ -58,13 +54,10 @@ site's custom domain ever changes.
 
 ## Custom domain setup
 
-The site and the Worker live on two different hostnames under
-`pmsoftwaredevs.com`, deliberately kept independent — the site is plain
-GitHub Pages with no Cloudflare involvement, and the Worker's hostname is
-fully owned by Cloudflare with no origin fallback (see `worker/wrangler.toml`
-for why). This means the two are set up completely separately:
+The site and the Worker are on two different kinds of hostnames:
 
-**`iracing.pmsoftwaredevs.com` (the site):**
+**`iracing.pmsoftwaredevs.com` (the site)** is a real custom domain, set up
+with no Cloudflare involvement at all:
 
 1. At your DNS provider, add a `CNAME` record:
    `iracing.pmsoftwaredevs.com` → `pmsoftwaredevs.github.io.`
@@ -74,20 +67,19 @@ for why). This means the two are set up completely separately:
    few minutes to a few hours).
 3. Once the certificate is issued, tick **Enforce HTTPS**.
 
-**`ics.iracing.pmsoftwaredevs.com` (the Worker):**
-
-1. In Cloudflare, add a new zone named exactly `ics.iracing.pmsoftwaredevs.com`
-   (Add a Site → enter that full hostname, not just `pmsoftwaredevs.com`).
-   This only delegates that one subdomain — it does not touch any other DNS
-   on `pmsoftwaredevs.com` (mail included).
-2. Cloudflare assigns two nameservers for that zone. At your DNS provider, add
-   an `NS` record delegating `ics.iracing.pmsoftwaredevs.com` to those two
-   nameservers.
-3. Wait for the zone to show **Active** in the Cloudflare dashboard (DNS
-   propagation, usually well under an hour).
-4. Run (or re-run) `deploy-worker.yml` — `worker/wrangler.toml`'s `routes`
-   entry attaches the Custom Domain automatically on deploy. No manual step
-   in the Cloudflare dashboard needed once the zone is active.
+**The Worker stays on its `workers.dev` URL** — no custom domain. Cloudflare
+Workers Custom Domains/Routes both require the hostname's zone to be on
+Cloudflare, and `pmsoftwaredevs.com`'s DNS lives at another registrar. Giving
+Cloudflare just the `ics.iracing.pmsoftwaredevs.com` subdomain (without moving
+the whole domain) needs a "subdomain zone", which is an Enterprise-only
+feature — not available here. A bare CNAME from the registrar to the
+`workers.dev` hostname doesn't work either: Cloudflare's edge only serves a
+hostname (routing and TLS) that belongs to a zone it manages, so that CNAME
+would resolve but fail at Cloudflare's edge with error 1001 ("DNS points to
+prohibited IP" / "non-Cloudflare domain cannot CNAME to a Cloudflare domain").
+The only way to get the Worker onto `*.pmsoftwaredevs.com` is to move the
+whole domain's nameservers to Cloudflare — a bigger decision (it would also
+take over DNS for the mail server), so it's left alone for now.
 
 ## 4. First-run bootstrap order
 
@@ -128,10 +120,7 @@ Worker after rotating its API token.
   (ARCHITECTURE.md), not a bug.
 - **`deploy-worker.yml` fails at the `wrangler deploy` step**: usually an
   expired/missing `CLOUDFLARE_API_TOKEN` or wrong `CLOUDFLARE_ACCOUNT_ID` —
-  re-check the repo Secrets from step 2. If the error specifically mentions
-  the Custom Domain / route, the `ics.iracing.pmsoftwaredevs.com` zone likely
-  isn't **Active** yet (see "Custom domain setup") — re-run the workflow once
-  it is.
+  re-check the repo Secrets from step 2.
 - **`build-cache.yml` fails to push**: the default `GITHUB_TOKEN` needs
   `contents: write` (already set in the workflow) — if branch protection on
   `main` blocks Actions from pushing directly, either relax that for this

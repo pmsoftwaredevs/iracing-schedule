@@ -3,16 +3,12 @@ main = "src/index.js"
 compatibility_date = "2024-11-01"
 workers_dev = true
 
-# Dedicated Workers Custom Domain for the .ics endpoint, kept on its own
-# subdomain (rather than sharing iracing.pmsoftwaredevs.com with the GitHub
-# Pages site) so the two systems never interact: no Worker Route/origin
-# fallback, no dependency on Cloudflare proxying GitHub Pages' TLS. Requires
-# ics.iracing.pmsoftwaredevs.com to exist as its own active Cloudflare zone
-# (delegated via an NS record at the registrar) before `wrangler deploy` can
-# attach it — see DEPLOYMENT.md.
-routes = [
-  { pattern = "ics.iracing.pmsoftwaredevs.com", custom_domain = true }
-]
+# No Cloudflare Custom Domain: pmsoftwaredevs.com's DNS lives at another
+# registrar, and Cloudflare Workers Custom Domains/Routes require the
+# hostname's zone to be on Cloudflare — a subdomain-only zone needs an
+# Enterprise plan. The Worker is public only at its workers.dev URL:
+# https://iracing-calendar-worker.pmsoftwaredevs-0ad.workers.dev
+# See DEPLOYMENT.md's "Custom domain setup" section for the tradeoff.
 
 # The published GitHub Pages site this Worker fetches data/manifest.json and
 # data/{season}.json from (see src/season-data.js) — override at deploy time
