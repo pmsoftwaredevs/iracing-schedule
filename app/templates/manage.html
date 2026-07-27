@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Manage your iRacing calendar{% endblock %}
+{% block content %}
+<h1>Hi {{ user.name }}</h1>
+<p>Subscribe your calendar app to this URL (Google/Apple/Outlook: "Add calendar by URL"):</p>
+<p><code>{{ subscribe_url }}</code></p>
+<p class="gmt-hint">Session times below are GMT (iRacing's schedule) — your reference timezone: <strong>{{ user.timezone }}</strong></p>
+
+<h2>Your selections</h2>
+<ul>
+  {% for selection in user.selections %}
+  <li>
+    {% if selection.series %}
+      {{ selection.series.name }}
+      <ul>
+        {% for slot in selection.timeslots %}
+        <li>{{ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][slot.day_of_week] }}
+          {{ slot.time_gmt.strftime('%H:%M') }} GMT</li>
+        {% endfor %}
+      </ul>
+    {% elif selection.special_event %}
+      <span class="{% if selection.special_event.date_end < now %}event-past{% endif %}">
+        {{ selection.special_event.name }} (special event,
+        {{ selection.special_event.date_start.strftime('%Y-%m-%d') }}{% if selection.special_event.date_end != selection.special_event.date_start %} – {{ selection.special_event.date_end.strftime('%Y-%m-%d') }}{% endif %})
+      </span>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+<p><a href="/u/{{ user.token }}/edit">Edit my selections</a></p>
+{% endblock %}

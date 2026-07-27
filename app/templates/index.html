@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}{% if existing_user %}Edit your iRacing calendar{% else %}iRacing Calendar — Pick your championships{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if existing_user %}Edit your selections{% else %}Pick your championships{% endif %}</h1>
+{% if not existing_user %}
+<p><a href="/manage">Already have a calendar? Manage it</a></p>
+{% endif %}
+
+<form method="post" action="{{ action_url }}" id="selection-form">
+  <fieldset>
+    <legend>Your timezone</legend>
+    <p>
+      <label>For your reference — session times below are iRacing's actual GMT schedule
+        <select name="timezone" id="timezone-select">
+          {% for tz in timezones %}
+          <option value="{{ tz }}" {% if tz == selected_timezone %}selected{% endif %}>{{ tz }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </p>
+  </fieldset>
+
+  {% for group in series_groups %}
+  <fieldset>
+    <legend>{{ group.label }}</legend>
+    {% if group.subtitle %}<h2 class="group-subtitle">{{ group.subtitle }}</h2>{% endif %}
+    {% for s in group.series %}
+    <div class="series-row">
+      <label>
+        <input type="checkbox" name="series_ids" value="{{ s.id }}" class="series-checkbox"
+               data-series-id="{{ s.id }}" {% if s.id in selected_series_ids %}checked{% endif %}>
+        {{ s.name }} <span class="gmt-hint">({{ s.license_level }})</span>
+      </label>
+    </div>
+    <div class="slots-container" data-series-id="{{ s.id }}" data-times="{{ s.session_times|join(',') }}">
+      {% for slot in timeslots_by_series.get(s.id, []) %}
+      <div class="slot-row">
+        <input type="hidden" name="slot_series_id" value="{{ s.id }}">
+        <select name="slot_day">
+          {% for value, label in [(1,'Tuesday'),(2,'Wednesday'),(3,'Thursday'),(4,'Friday'),(5,'Saturday'),(6,'Sunday'),(0,'Monday')] %}
+          <option value="{{ value }}" {% if slot.day_of_week == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        {% set saved_time = slot.time_gmt.strftime('%H:%M') %}
+        {% set slot_options = s.session_times if saved_time in s.session_times else s.session_times + [saved_time] %}
+        <select name="slot_time">
+          {% for option in slot_options %}
+          <option value="{{ option }}" {% if saved_time == option %}selected{% endif %}>{{ option }} GMT</option>
+          {% endfor %}
+        </select>
+        <button type="button" class="remove-slot">Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+    <button type="button" class="add-slot" data-series-id="{{ s.id }}">+ Add weekly timeslot</button>
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+
+  {% if special_events %}
+  <fieldset>
+    <legend>Special Events</legend>
+    <h2 class="group-subtitle">{{ special_events_year }}</h2>
+    {% for event in special_events %}
+    <div class="series-row">
+      <label class="{% if event.date_end < now %}event-past{% endif %}">
+        <input type="checkbox" name="special_event_ids" value="{{ event.id }}"
+               {% if event.id in selected_special_event_ids %}checked{% endif %}>
+        {{ event.name }}
+        <span class="gmt-hint">
+          ({{ event.date_start.strftime('%Y-%m-%d') }}{% if event.date_end != event.date_start %} – {{ event.date_end.strftime('%Y-%m-%d') }}{% endif %})
+          {% if event.track_name %}— {{ event.track_name }}{% endif %}
+          {% if event.car_class %}— {{ event.car_class }}{% endif %}
+        </span>
+      </label>
+    </div>
+    {% endfor %}
+  </fieldset>
+  {% endif %}
+
+  <fieldset>
+    <legend>Your details</legend>
+    <p><label>Name <input type="text" name="name" value="{{ existing_user.name if existing_user else '' }}" required></label></p>
+    <p><label>Email <input type="email" name="email" value="{{ existing_user.email if existing_user else '' }}" required></label></p>
+  </fieldset>
+
+  <button type="submit">{% if existing_user %}Save changes{% else %}Create my calendar{% endif %}</button>
+</form>
+
+<template id="slot-row-template">
+  <div class="slot-row">
+    <input type="hidden" name="slot_series_id" value="">
+    <select name="slot_day">
+      <option value="1" selected>Tuesday</option>
+      <option value="2">Wednesday</option>
+      <option value="3">Thursday</option>
+      <option value="4">Friday</option>
+      <option value="5">Saturday</option>
+      <option value="6">Sunday</option>
+      <option value="0">Monday</option>
+    </select>
+    <select name="slot_time"></select>
+    <button type="button" class="remove-slot">Remove</button>
+  </div>
+</template>
+
+<script>
+var slotTemplate = document.getElementById('slot-row-template');
+
+function addSlotRow(seriesId) {
+  var container = document.querySelector('.slots-container[data-series-id="' + seriesId + '"]');
+  var times = (container.dataset.times || '').split(',').filter(Boolean);
+  var row = slotTemplate.content.cloneNode(true);
+  row.querySelector('input[name="slot_series_id"]').value = seriesId;
+  var timeSelect = row.querySelector('select[name="slot_time"]');
+  times.forEach(function (t) {
+    var option = document.createElement('option');
+    option.value = t;
+    option.textContent = t + ' GMT';
+    timeSelect.appendChild(option);
+  });
+  row.querySelector('.remove-slot').addEventListener('click', function (event) {
+    event.target.closest('.slot-row').remove();
+  });
+  container.appendChild(row);
+}
+
+document.querySelectorAll('.add-slot').forEach(function (button) {
+  button.addEventListener('click', function () {
+    var seriesId = button.dataset.seriesId;
+    addSlotRow(seriesId);
+    document.querySelector('.series-checkbox[data-series-id="' + seriesId + '"]').checked = true;
+  });
+});
+
+document.querySelectorAll('.slots-container').forEach(function (container) {
+  container.querySelectorAll('.remove-slot').forEach(function (button) {
+    button.addEventListener('click', function (event) {
+      event.target.closest('.slot-row').remove();
+    });
+  });
+});
+
+// Checking a championship without a timeslot yet auto-adds one, defaulted to
+// Tuesday (when the week renews) and the first available session time, so it's
+// impossible to submit a pick with no timeslot.
+document.querySelectorAll('.series-checkbox').forEach(function (checkbox) {
+  checkbox.addEventListener('change', function () {
+    if (!checkbox.checked) {
+      return;
+    }
+    var seriesId = checkbox.dataset.seriesId;
+    var container = document.querySelector('.slots-container[data-series-id="' + seriesId + '"]');
+    if (container.querySelectorAll('.slot-row').length === 0) {
+      addSlotRow(seriesId);
+    }
+  });
+});
+
+{% if not existing_user %}
+// Default the timezone dropdown to the browser's detected zone for new signups —
+// edits keep whatever the user already saved.
+(function () {
+  try {
+    var detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var select = document.getElementById('timezone-select');
+    if (detected && select.querySelector('option[value="' + detected + '"]')) {
+      select.value = detected;
+    }
+  } catch (e) {}
+})();
+{% endif %}
+</script>
+{% endblock %}

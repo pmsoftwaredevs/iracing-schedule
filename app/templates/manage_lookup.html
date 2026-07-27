@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Find your iRacing calendar{% endblock %}
+{% block content %}
+<h1>Find your calendar</h1>
+
+{% if submitted %}
+<p>If that email has any calendars, we've emailed the link(s) to it.</p>
+<p><a href="/">Back to home</a></p>
+{% else %}
+<p>Lost your link? Enter the email you signed up with and we'll send it to you.</p>
+<form method="post" action="/manage/lookup">
+  <p><label>Email <input type="email" name="email" required></label></p>
+  <button type="submit">Send my link</button>
+</form>
+{% endif %}
+{% endblock %}
