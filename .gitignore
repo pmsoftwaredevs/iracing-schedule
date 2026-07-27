@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.db
+.env
+.iracing.creds.txt
+.pytest_cache/
+*.egg-info/
+/cache/
