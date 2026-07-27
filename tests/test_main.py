@@ -142,6 +142,14 @@ def test_signup_with_invalid_timezone_falls_back_to_utc(client, db_engine):
         assert user.timezone == "UTC"
 
 
+def test_signup_with_no_selections_is_rejected(client):
+    response = client.post(
+        "/select",
+        data={"name": "Jordan", "email": "jordan@example.com"},
+    )
+    assert response.status_code == 400
+
+
 def test_recovery_lookup_for_unknown_email_gives_same_confirmation(client, monkeypatch):
     sent = []
     monkeypatch.setattr(

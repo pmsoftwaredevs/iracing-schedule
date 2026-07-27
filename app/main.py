@@ -125,6 +125,14 @@ def _clean_timezone(raw: str) -> str:
     return DEFAULT_TIMEZONE
 
 
+def _require_at_least_one_selection(form: FormData) -> None:
+    """Backend backstop for the "pick at least one" rule the form's JS already
+    enforces — guards direct/non-JS POSTs, since _apply_selections otherwise
+    happily creates a user with zero selections."""
+    if not form.getlist("series_ids") and not form.getlist("special_event_ids"):
+        raise HTTPException(status_code=400, detail="Pick at least one championship or special event")
+
+
 def _apply_selections(session: Session, user: User, form: FormData) -> None:
     """Replaces user's Selections/Timeslots with whatever the form submitted. Used
     by both the new-signup route and the edit route — a brand-new user simply has no
@@ -187,6 +195,7 @@ async def submit_selection(request: Request, session: SessionDep):
     email = str(form.get("email", "")).strip()
     if not name or not email:
         raise HTTPException(status_code=400, detail="Name and email are required")
+    _require_at_least_one_selection(form)
     timezone_name = _clean_timezone(str(form.get("timezone", "")).strip())
 
     user = User(name=name, email=email, timezone=timezone_name)
@@ -261,6 +270,7 @@ async def update_selection(request: Request, token: str, session: SessionDep):
     email = str(form.get("email", "")).strip()
     if not name or not email:
         raise HTTPException(status_code=400, detail="Name and email are required")
+    _require_at_least_one_selection(form)
     user.name = name
     user.email = email
     user.timezone = _clean_timezone(str(form.get("timezone", "")).strip())

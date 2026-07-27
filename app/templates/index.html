@@ -10,14 +10,23 @@
   {% endif %}
 </div>
 
-<form method="post" action="{{ action_url }}" id="selection-form">
+<form method="post" action="{{ action_url }}" id="selection-form" novalidate>
   <div class="detail-block top-details">
     <div class="detail-fields">
-      <p><label for="name-input">Name</label><input id="name-input" type="text" name="name" value="{{ existing_user.name if existing_user else '' }}" required></p>
-      <p><label for="email-input">Email</label><input id="email-input" type="email" name="email" value="{{ existing_user.email if existing_user else '' }}" required></p>
+      <p class="field">
+        <input id="name-input" type="text" name="name" placeholder="Name" aria-label="Name"
+               value="{{ existing_user.name if existing_user else '' }}" required>
+        <span class="field-error" id="name-error"></span>
+      </p>
+      <p class="field">
+        <input id="email-input" type="email" name="email" placeholder="Email" aria-label="Email"
+               value="{{ existing_user.email if existing_user else '' }}" required>
+        <span class="field-error" id="email-error"></span>
+      </p>
     </div>
     <button type="submit">{% if existing_user %}Save changes{% else %}Create my calendar{% endif %}</button>
   </div>
+  <p class="form-error" id="selection-error" hidden>Pick at least one championship or special event before creating your calendar.</p>
 
   <div class="control-bar">
     <div class="control-row">
@@ -320,6 +329,54 @@ filterClear.addEventListener('click', function () {
   filterInput.value = '';
   applyFilter();
   filterInput.focus();
+});
+
+// ---- Form validation: name, email, and at least one pick ----
+var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+var nameInput = document.getElementById('name-input');
+var emailInput = document.getElementById('email-input');
+var nameError = document.getElementById('name-error');
+var emailError = document.getElementById('email-error');
+var selectionError = document.getElementById('selection-error');
+
+function validateName() {
+  var ok = nameInput.value.trim().length > 0;
+  nameError.textContent = ok ? '' : 'Enter your name.';
+  nameInput.classList.toggle('is-invalid', !ok);
+  return ok;
+}
+
+function validateEmail() {
+  var ok = EMAIL_RE.test(emailInput.value.trim());
+  emailError.textContent = ok ? '' : 'Enter a valid email address.';
+  emailInput.classList.toggle('is-invalid', !ok);
+  return ok;
+}
+
+function validateSelection() {
+  var ok = !!document.querySelector('input[name="series_ids"]:checked, input[name="special_event_ids"]:checked');
+  selectionError.hidden = ok;
+  return ok;
+}
+
+nameInput.addEventListener('input', validateName);
+emailInput.addEventListener('input', validateEmail);
+
+document.getElementById('selection-form').addEventListener('submit', function (event) {
+  var validName = validateName();
+  var validEmail = validateEmail();
+  var validSelection = validateSelection();
+  if (validName && validEmail && validSelection) {
+    return;
+  }
+  event.preventDefault();
+  if (!validName) {
+    nameInput.focus();
+  } else if (!validEmail) {
+    emailInput.focus();
+  } else {
+    selectionError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 });
 
 {% if not existing_user %}

@@ -439,9 +439,30 @@ select, input[type="text"], input[type="email"] {
   flex: 1 1 22rem;
 }
 
-.top-details .detail-fields p { margin: 0; }
+.top-details .detail-fields .field { margin: 0; display: flex; flex-direction: column; gap: 0.25rem; }
 .top-details .detail-fields input { width: 100%; min-width: 12rem; max-width: 16rem; }
 .top-details button[type="submit"] { flex-shrink: 0; }
+
+.field-error {
+  font-size: 0.76rem;
+  color: var(--red);
+}
+
+.field-error:empty { display: none; }
+
+input.is-invalid { border-color: var(--red); }
+
+.form-error {
+  color: var(--red);
+  background: var(--red-wash);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.8rem;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+}
+
+.form-error[hidden] { display: none; }
 
 button[type="submit"] {
   font-family: var(--sans);
