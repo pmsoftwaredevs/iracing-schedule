@@ -1,0 +1,42 @@
+name: Deploy Worker
+
+# Deploys the Cloudflare Worker that serves live .ics feeds (see worker/).
+# Triggers only on changes to worker/** or shared/** (the code the Worker
+# bundles) — deliberately decoupled from docs/data/**'s daily refresh cadence,
+# since the Worker fetches season data live from the published Pages site on
+# every request rather than bundling it (see worker/src/season-data.js).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "shared/**"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: deploy

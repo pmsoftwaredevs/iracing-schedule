@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from app.parsers.special_events_page import parse_special_events_page
+from pipeline.parsers.special_events_page import parse_special_events_page
 
 FIXTURE = Path(__file__).parent / "fixtures" / "special_events_page_sample.html"
 

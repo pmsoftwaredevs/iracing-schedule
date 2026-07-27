@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from app.parsers.schedule_pdf import (
+from pipeline.parsers.schedule_pdf import (
     _cadence_text,
     _is_continuation_table,
     _license_level,

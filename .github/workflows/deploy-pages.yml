@@ -1,0 +1,61 @@
+name: Deploy Pages
+
+# Publishes docs/ as the GitHub Pages site. Triggers on any push touching
+# docs/** — including build-cache.yml's own commits, so a season-cache refresh
+# republishes automatically with no explicit chaining needed. Requires Pages
+# to be enabled once under Settings -> Pages -> Source: GitHub Actions.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # GitHub Pages has no runtime env vars, so the AdSense publisher id and
+      # the deployed Worker's base URL are baked into a generated config.js at
+      # build time instead — see ARCHITECTURE.md. ADS_PUBLISHER_ID is a repo
+      # Variable, not a Secret: it ends up in public page source either way
+      # once deployed, and leaving it unset just renders with no ad script.
+      - name: Generate docs/config.js
+        run: |
+          cat > docs/config.js <<EOF
+          window.IRCAL_CONFIG = {
+            adsPublisherId: "${{ vars.ADS_PUBLISHER_ID }}",
+            workerBaseUrl: "${{ vars.WORKER_BASE_URL }}"
+          };
+          EOF
+
+      # docs/shared/ is gitignored (never hand-edited, always copied fresh from
+      # the single source of truth at /shared) since a browser's <script
+      # type="module"> can only import paths within the served root.
+      - name: Copy shared modules into docs/
+        run: |
+          mkdir -p docs/shared
+          cp shared/calendar-code.js shared/resolve.js shared/series-match.js docs/shared/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

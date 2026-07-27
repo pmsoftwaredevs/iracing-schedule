@@ -1,0 +1,11 @@
+name = "iracing-calendar-worker"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+workers_dev = true
+
+# The published GitHub Pages site this Worker fetches data/manifest.json and
+# data/{season}.json from (see src/season-data.js) — override at deploy time
+# with `--var PAGES_BASE_URL:...` or for local dev with `wrangler dev --var
+# PAGES_BASE_URL:http://localhost:<port>` pointed at a locally-served docs/.
+[vars]
+PAGES_BASE_URL = "https://REPLACE-WITH-YOUR-GITHUB-USERNAME.github.io/iRacing_calendar"

@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from app.parsers.seasons_page import current_season, parse_seasons_page
+from pipeline.parsers.seasons_page import current_season, parse_seasons_page
 
 FIXTURE = Path(__file__).parent / "fixtures" / "seasons_page_sample.html"
 

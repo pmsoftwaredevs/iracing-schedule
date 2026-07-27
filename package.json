@@ -1,0 +1,14 @@
+{
+  "name": "iracing-calendar",
+  "private": true,
+  "description": "Static picker/manager for iRacing championship calendars, plus the Cloudflare Worker that serves the live .ics feeds.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test shared/*.test.js worker/test/*.js",
+    "dev:site": "mkdir -p docs/shared && cp shared/calendar-code.js shared/resolve.js shared/series-match.js docs/shared/ && npx serve docs",
+    "dev:worker": "wrangler dev -c worker/wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

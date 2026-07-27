@@ -2,7 +2,7 @@ from datetime import time
 
 import pytest
 
-from app.parsers.race_cadence import parse_cadence
+from pipeline.parsers.race_cadence import parse_cadence
 
 # Every distinct "Races every ..." phrasing found in the real official 2026 S3
 # schedule PDF, mapped to the expected mark count (verified by hand for the
@@ -54,7 +54,7 @@ REAL_PATTERNS_AND_COUNTS = [
 ]
 
 # Day-specific phrasings ("every other <day>" biweekly ones included — the
-# biweekly-ness itself doesn't need parsing here, see app/parsers/race_cadence.py's
+# biweekly-ness itself doesn't need parsing here, see pipeline/parsers/race_cadence.py's
 # module docstring) mapped to the expected {day_of_week: [times]} result.
 DAY_SPECIFIC_PATTERNS = [
     (

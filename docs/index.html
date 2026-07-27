@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iRacing Calendar — Pick your championships</title>
+<meta name="description" content="Build a subscribable calendar of iRacing championships and special events. No account, no email — your picks live entirely in the URL.">
+<link rel="stylesheet" href="style.css">
+<script src="config.js" onerror="window.IRCAL_CONFIG = window.IRCAL_CONFIG || {}"></script>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <span class="kicker">GMT · Race Control</span>
+    <h1>Pick your championships</h1>
+    <p class="lede">Browse championships and special events, see which track is up this week, and pick the weekly sessions you want on your calendar. No account, no email — your selections live entirely in the URL below.</p>
+  </div>
+
+  <details class="paste-code-box" id="paste-code-box">
+    <summary>Already have a calendar? Paste its code or URL here to change your selections</summary>
+    <div class="paste-code-row">
+      <input type="text" id="paste-code-input" placeholder="Paste your calendar code or subscribe URL" autocomplete="off">
+      <button type="button" id="paste-code-apply">Load</button>
+    </div>
+    <p class="paste-code-message" id="paste-code-message" hidden></p>
+    <div id="rollover-banners"></div>
+  </details>
+
+  <div class="result-panel" id="result-panel">
+    <div class="result-row">
+      <span class="result-label">Calendar code</span>
+      <code id="result-code">—</code>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Subscribe URL</span>
+      <code id="result-url">—</code>
+      <button type="button" id="copy-url-button">Copy</button>
+    </div>
+    <p class="result-hint">Paste the subscribe URL into Google/Apple/Outlook ("Add calendar by URL"). It updates automatically as you change picks below — copy it again any time.</p>
+  </div>
+
+  <div class="control-bar">
+    <div class="control-row">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="championships">Championships</button>
+        <button type="button" class="tab-btn" data-tab="events">Special Events</button>
+      </div>
+      <div class="tz-picker">
+        <label>Your timezone
+          <select id="timezone-select"></select>
+        </label>
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="filter-wrap">
+        <input type="text" id="filter-input" class="filter-input" autocomplete="off"
+               placeholder="Filter championships and special events…">
+        <button type="button" id="filter-clear" class="filter-clear" hidden aria-label="Clear filter">&times;</button>
+      </div>
+      <div class="license-filter" id="license-filter" role="group" aria-label="Filter by license"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-panel="championships" id="championships-panel">
+    <p class="loading-hint">Loading championships…</p>
+  </div>
+
+  <div class="tab-panel" data-panel="events" id="events-panel" hidden></div>
+
+  <div class="ad-slot" id="ad-slot" hidden></div>
+</div>
+
+<template id="series-card-template">
+  <div class="series-card">
+    <div class="series-head">
+      <input type="checkbox" class="series-checkbox">
+      <div>
+        <label>
+          <span class="license-badge" hidden></span>
+          <a class="series-name series-link" target="_blank" rel="noopener noreferrer" hidden></a>
+          <span class="series-name series-plain" hidden></span>
+        </label>
+        <span class="series-duration" hidden></span>
+        <details class="schedule" hidden>
+          <summary>
+            <span class="chevron">&#9656;</span>
+            <span class="current-track"><span class="dot"></span><span class="current-track-text"></span></span>
+          </summary>
+          <ol class="schedule-list"></ol>
+        </details>
+      </div>
+    </div>
+    <div class="slots-container"></div>
+    <button type="button" class="add-slot">+ Add weekly timeslot</button>
+  </div>
+</template>
+
+<template id="slot-row-template">
+  <div class="slot-row">
+    <select class="slot-day"></select>
+    <select class="slot-time"></select>
+    <span class="local-badge"></span>
+    <button type="button" class="remove-slot">Remove</button>
+  </div>
+</template>
+
+<template id="event-card-template">
+  <div class="series-card event-card">
+    <div class="series-head">
+      <input type="checkbox" class="event-checkbox">
+      <div>
+        <label><span class="series-name"></span></label>
+        <span class="gmt-hint"></span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

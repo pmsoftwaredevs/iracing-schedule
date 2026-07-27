@@ -1,104 +1,117 @@
 # iRacing Calendar
 
-Self-hosted iCal feeds for your iRacing championships and special events.
+A static site for picking iRacing championships and special events, plus a
+subscribable `.ics` feed for whatever you picked. No accounts, no email, no
+database — your selections live entirely in a deterministic code embedded in
+the URL. See [ARCHITECTURE.md](ARCHITECTURE.md) for exactly how that works.
 
-## Setup
+## How it's built
+
+- **`docs/`** — the static picker/manager site, published to GitHub Pages.
+  Plain HTML/CSS/vanilla JS, no framework. Reads `docs/data/*.json` (the season
+  cache) to render championships/special events, and builds a calendar code
+  live as you check things.
+- **`shared/`** — the calendar-code encode/decode logic and the previous-season
+  rollover matcher, used by both the static site and the Worker. Single source
+  of truth; copied into `docs/shared/` at deploy time (browsers can't import
+  outside their served root) and imported directly by the Worker (bundled at
+  build time, no such restriction).
+- **`worker/`** — a Cloudflare Worker serving the live `.ics` endpoint
+  (`GET /calendar/{code}.ics`). GitHub Pages can't run code per request, so
+  this is the one piece of always-on compute in the whole system.
+- **`pipeline/`** — pure, deterministic Python that parses iRacing's own public
+  pages/PDF (no account/login anywhere). Reused as a library by:
+- **`tools/build_cache.py`** — the GitHub Actions entry point that refreshes
+  `docs/data/*.json` from live sources on a schedule.
+- **`.github/workflows/`** — refreshes the cache, publishes `docs/`, and
+  deploys the Worker. See ARCHITECTURE.md for how they chain.
+
+## Local development
+
+### Python (`pipeline/`, `tools/`)
 
 ```
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-```
-
-Copy `.env.example` to `.env` and fill in SMTP details (or leave blank for local dev —
-email sends just get logged instead). No iRacing account credentials are used anywhere
-in this project — all schedule data comes from public, unauthenticated sources.
-
-## Run
-
-```
-source .venv/bin/activate
-uvicorn app.main:app --reload
-```
-
-Then open http://localhost:8000/.
-
-## Test
-
-```
-source .venv/bin/activate
 python -m pytest
 ```
 
+Run the cache build for real (writes `docs/data/*.json` from live iRacing
+sources):
+
+```
+python -m tools.build_cache
+```
+
+### JavaScript (`shared/`, `worker/`, `docs/`)
+
+```
+npm install
+npm test
+```
+
+Serve the static site locally (copies `shared/` into `docs/shared/` first,
+since a browser can only import modules from within its served root):
+
+```
+npm run dev:site
+```
+
+Run the Worker locally against that same local site:
+
+```
+npm run dev:worker -- --var PAGES_BASE_URL:http://localhost:3000
+```
+
+(adjust the port to whatever `dev:site` printed). Then fetch e.g.
+`http://localhost:8787/calendar/2026S3.ics` to see a live-generated calendar.
+
 ## Deploy
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for running this in Docker behind an
-Apache 2 reverse proxy.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for enabling GitHub Pages, creating the
+Cloudflare Worker, and the repo secrets/variables both need.
 
 ## Status
 
-Working end-to-end against real, official, live sources (verified this session with a
-fresh empty DB — no iRacing account used anywhere):
+Working end-to-end against real, official, live sources — no iRacing account
+used anywhere:
 
-- `app/parsers/seasons_page.py` parses `iracing.com/seasons` (BeautifulSoup, no LLM) to
-  find the current season's `(year, quarter, start_date)` — including a workaround for
-  a real bug on iRacing's own page (the current season's button links to the wrong
-  season slug; the parser reads the season number from the link text instead).
-- `app/schedule_source.py` fetches the **official** season schedule PDF
-  (`members-assets.iracing.com/public/schedulepdf/SeasonSchedule.pdf`, no cookies);
-  `app/parsers/schedule_pdf.py` deterministically parses it into per-series weekly
-  schedules (pdfplumber tables + regex, no LLM), including page-break continuation
-  handling.
-- `app/parsers/special_events_page.py` parses the real
-  `iracing.com/special-events` HTML page directly (dates, track links, car-class
-  labels are all real markup — no OCR/image parsing involved). Handles cross-month
-  date ranges (e.g. "June 30 – July 6"), abbreviated month names, and skips events
-  with no announced date ("Date : TBD") rather than guessing.
-- `app/scheduler.py`'s `check_upcoming_seasons` runs on startup and every ~2 months:
-  detects the current season, and if it's new, fetches/parses/upserts the schedule,
-  matches previous selections to the new season (`app/matcher.py`), and emails
-  affected users a rollover recap (`app/email.py`). Special events refresh on the
-  same cadence, plus once at startup if none exist yet.
-- Full self-service flow: browse (grouped by season, e.g. "2026 Season 3") → pick
-  championships/events → set weekly timeslots in your own timezone (`+ Add` for
-  multiple sessions/week; checking a championship auto-adds a first timeslot so it
-  can't be forgotten) → name+email → private manage link emailed. `/u/{token}/edit`
-  reuses the same form, pre-filled, to change selections. `/manage` lets you recover
-  lost links by email (always shows the same confirmation, so it doesn't leak which
-  emails are registered). Special events already in the past are struck through.
-- Each championship's actual session cadence is parsed from its schedule PDF header
-  (`app/parsers/race_cadence.py`, e.g. "Races every even 2 hours at :30 past" ->
-  00:30, 02:30, 04:30 GMT, ...) and the timeslot picker is a dropdown of only those
-  real GMT times — not a free-form input — defaulting to Tuesday (when iRacing's
-  week rolls over) and the first available time. A handful of irregular
-  day-specific cadences ("every other Saturday...") fall back to a coarse default
-  grid with a logged warning rather than guessing. `User.timezone` (defaulted from
-  the browser via `Intl.DateTimeFormat`, editable) is kept for the user's own
-  reference only, since session times are fixed by iRacing in GMT.
-- Each series' required license (Rookie/D/C/B/A/Pro-World-Champion) is parsed from
-  its schedule PDF header's promotion-range line (`app/parsers/schedule_pdf.py`,
-  e.g. "Rookie (1.0) --> Pro/WC (4.0)" -> Rookie; "Class C (4.0) --> Pro/WC (4.0)"
-  -> Class B, since an SR of 4.0 is iRacing's own auto-promotion threshold, so
-  that's effectively a Class B series). Shown as a colored letter badge (R/D/C/B/A/P,
-  iRacing's own per-license colors, `app/licenses.py`) next to each series on the
-  browse and manage pages, with checkbox filters to show/hide championships by
-  license while picking.
-- Special events render as proper all-day banners spanning their full announced
-  date range inclusive (handles cross-month events like Firecracker 400, June 30 –
-  July 6) rather than a zero-duration blip on the start date.
-- Each user's `.ics` gets one synthetic reminder event during "Week 13" (iRacing's
-  build/transition week with no regular schedule) nudging them to come re-pick
-  championships for the next season — timed using their first subscribed
-  championship's own timeslot and that specific series' own last scheduled week
-  (not the season's blended end date, which a few continuous multi-season series
-  would otherwise skew months too late).
-- 69 tests passing, including against real captured PDF/HTML fixtures and a FastAPI
-  `TestClient` integration test covering signup → edit → recovery.
+- `pipeline/parsers/seasons_page.py`, `schedule_pdf.py`, `special_events_page.py`,
+  `race_cadence.py` are unchanged from the original server-based version:
+  deterministic, rule-based (BeautifulSoup/pdfplumber/regex, no LLM), and still
+  fully covered by `tests/` against real captured fixtures.
+- `tools/build_cache.py` detects the current season, rebuilds its cache fully
+  from live sources every run, and reconciles against whatever was previously
+  committed so that championship/special-event array positions never shift
+  once published (see ARCHITECTURE.md's index-stability invariant) — that
+  stability is what makes a deterministic, position-addressed calendar code
+  safe to hand out.
+- `docs/app.js` reimplements the full picker experience from the old
+  server-rendered templates client-side: license/text filtering, dynamic
+  weekly-timeslot rows constrained to each championship's real cadence, live
+  local-timezone badges, per-championship week-by-week schedule detail, and a
+  live-updating calendar code + subscribe URL with no submit button.
+- Pasting an existing code or subscribe URL back into the site decodes it and
+  re-ticks the matching selections (`shared/calendar-code.js` +
+  `shared/resolve.js`) — this replaces the old token-based `/u/{token}/edit`
+  manage page.
+- A code from last season is matched against the current season's
+  championships by name (`shared/series-match.js`, ported from the old
+  `app/matcher.py`) entirely client-side, with inline banners for matched,
+  time-changed, and unmatched championships — this replaces the old emailed
+  rollover recap.
+- `worker/src/ics.js` ports the old `app/ics_builder.py`'s event-generation
+  semantics: one VEVENT per week × timeslot in UTC, gap-based duration
+  shrinking for back-to-back sessions, the week-13 "pick next season" reminder,
+  and all-day special-event spans with an RFC 5545-correct exclusive DTEND.
+- The Worker always returns a valid calendar — a malformed code or a season
+  outside the current+previous retention window decodes to an empty (not
+  broken) calendar.
 
-Remaining gaps:
+Remaining gaps (carried over from the original app):
 
-- No admin UI for events with no announced date yet (currently just excluded until
-  iRacing publishes one and the next refresh picks it up).
-- Series aren't categorized by discipline (Oval/Road/Dirt/etc.) — the browse page
-  groups by season instead, since `Series.category` isn't populated from the
-  schedule PDF yet.
+- No admin UI for special events with no announced date yet (excluded until
+  iRacing publishes one and the next cache refresh picks it up).
+- Series aren't categorized by discipline (Oval/Road/Dirt/etc.) —
+  `championship.category` isn't populated from the schedule PDF yet.
