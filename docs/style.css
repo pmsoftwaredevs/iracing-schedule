@@ -796,6 +796,62 @@ body:has(.ad-slot:not([hidden])) .page {
   padding-bottom: 6rem;
 }
 
+/* ---- Cookie consent banner: fixed to the top until the visitor picks an option ---- */
+
+.cookie-consent-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 1.5rem;
+  padding: 0.7rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-strong);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.cookie-consent-banner[hidden] { display: none; }
+
+.cookie-consent-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  max-width: 640px;
+}
+
+.cookie-consent-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cookie-consent-actions button {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  border: none;
+}
+
+.cookie-consent-accept { color: #fff; background: var(--green); }
+.cookie-consent-accept:hover { background: var(--green-dark); }
+
+.cookie-consent-reject { color: var(--ink-soft); background: var(--surface-sunken); border: 1px solid var(--line); }
+.cookie-consent-reject:hover { background: var(--line); }
+
+/* Keep page content from hiding behind the fixed consent bar */
+body:has(.cookie-consent-banner:not([hidden])) .page {
+  padding-top: 4.5rem;
+}
+
 /* ---- Footer ---- */
 
 .site-footer {

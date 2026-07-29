@@ -97,6 +97,7 @@ const categoryFilterContainer = document.getElementById("category-filter");
 const pasteBox = document.getElementById("paste-code-box");
 const pasteInput = document.getElementById("paste-code-input");
 const pasteMessage = document.getElementById("paste-code-message");
+const cookieConsentBanner = document.getElementById("cookie-consent-banner");
 
 async function fetchJson(path) {
   const response = await fetch(path, { cache: "no-cache" });
@@ -405,7 +406,10 @@ let currentCode = null;
 
 // Remembers the last copied calendar code so a returning visitor (no ?code=
 // in the URL) can be greeted with their existing selections pre-loaded —
-// see the CALENDAR_CODE_COOKIE read in main()'s boot sequence below.
+// see the CALENDAR_CODE_COOKIE read in main()'s boot sequence below. It's a
+// non-essential (functionality) cookie under GDPR/ePrivacy, so it's only ever
+// set or read once the visitor has opted in via the consent banner — see
+// COOKIE_CONSENT_KEY below.
 const CALENDAR_CODE_COOKIE = "ircal_code";
 const CALENDAR_CODE_COOKIE_MAX_AGE_DAYS = 365;
 
@@ -417,6 +421,35 @@ function setCookie(name, value, days) {
 function getCookie(name) {
   const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : null;
+}
+
+function clearCookie(name) {
+  document.cookie = `${name}=; max-age=0; path=/; SameSite=Lax`;
+}
+
+// The consent choice itself is stored in localStorage rather than a cookie —
+// it's what lets us avoid ever touching CALENDAR_CODE_COOKIE before a decision
+// is made, so no non-essential cookie is written pre-consent.
+const COOKIE_CONSENT_KEY = "ircal_cookie_consent";
+
+function getCookieConsent() {
+  try {
+    return window.localStorage.getItem(COOKIE_CONSENT_KEY);
+  } catch (e) {
+    return null;
+  }
+}
+
+function setCookieConsent(value) {
+  try {
+    window.localStorage.setItem(COOKIE_CONSENT_KEY, value);
+  } catch (e) {
+    /* storage unavailable — banner will just reappear next visit */
+  }
+}
+
+function hasCookieConsent() {
+  return getCookieConsent() === "accepted";
 }
 
 function recomputeCode() {
@@ -574,8 +607,10 @@ async function main() {
   // Captured now, before anything (recomputeCode included) has a chance to
   // rewrite window.location's own ?code= param — see the boot-sequence note below.
   // A cookie left by a previous "copy calendar URL" only kicks in when the
-  // request itself had no ?code=, so an explicit link always wins over it.
-  const initialCode = new URLSearchParams(window.location.search).get("code") || getCookie(CALENDAR_CODE_COOKIE);
+  // request itself had no ?code=, so an explicit link always wins over it —
+  // and only when the visitor has actually opted in (see hasCookieConsent).
+  const initialCode = new URLSearchParams(window.location.search).get("code")
+    || (hasCookieConsent() ? getCookie(CALENDAR_CODE_COOKIE) : null);
 
   document.getElementById("season-heading").textContent = formatSeasonLabel(seasonData.season);
 
@@ -704,7 +739,7 @@ async function main() {
   // ---- Copy subscribe URL ----
   document.getElementById("copy-url-button").addEventListener("click", async () => {
     const button = document.getElementById("copy-url-button");
-    if (currentCode) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
+    if (currentCode && hasCookieConsent()) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
     try {
       await navigator.clipboard.writeText(resultUrlEl.textContent);
       const original = button.textContent;
@@ -724,6 +759,20 @@ async function main() {
   });
   helpDialog.addEventListener("click", (event) => {
     if (event.target === helpDialog) helpDialog.close();
+  });
+
+  // ---- Cookie consent banner ----
+  // Shown until the visitor picks Accept/Reject; the choice (not the
+  // calendar-code cookie itself) is what's remembered, so it isn't asked again.
+  cookieConsentBanner.hidden = getCookieConsent() !== null;
+  document.getElementById("cookie-consent-accept").addEventListener("click", () => {
+    setCookieConsent("accepted");
+    cookieConsentBanner.hidden = true;
+  });
+  document.getElementById("cookie-consent-reject").addEventListener("click", () => {
+    setCookieConsent("rejected");
+    clearCookie(CALENDAR_CODE_COOKIE);
+    cookieConsentBanner.hidden = true;
   });
 
   // ---- Paste-code box ----
