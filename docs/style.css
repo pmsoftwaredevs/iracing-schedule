@@ -334,6 +334,94 @@ a:hover { color: var(--green-dark); }
   color: var(--badge-fg);
 }
 
+/* ---- Category filter chips (control bar) ---- */
+
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  gap: 0.4rem;
+}
+
+.category-toggle {
+  cursor: pointer;
+  line-height: 0;
+}
+
+.category-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  transition: opacity 0.15s ease, filter 0.15s ease, color 0.15s ease;
+}
+
+.category-chip .category-svg { width: 1rem; height: 1rem; }
+
+.category-toggle input:checked + .category-chip {
+  color: var(--green-dark);
+  border-color: var(--green);
+  background: var(--green-wash);
+}
+
+.category-toggle input:not(:checked) + .category-chip {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+}
+
+.category-toggle input:focus-visible + .category-chip {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* ---- Category icon + ranked badge (series card) ---- */
+
+.category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 0.35rem;
+  color: var(--ink-soft);
+  vertical-align: middle;
+}
+
+.category-icon .category-svg { width: 1rem; height: 1rem; }
+
+.ranked-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 0.35rem;
+  color: var(--amber);
+  vertical-align: middle;
+  font-size: 0.85rem;
+}
+
+/* `display: inline-flex` above has the same specificity as the UA stylesheet's
+   `[hidden] { display: none }` and author-origin rules always win ties with
+   user-agent ones regardless of source order, so each badge/icon needs its own
+   explicit override or the `hidden` attribute is silently ignored. */
+.license-badge[hidden],
+.category-icon[hidden],
+.ranked-badge[hidden] { display: none; }
+
 .tabs {
   display: inline-flex;
   gap: 0.25rem;

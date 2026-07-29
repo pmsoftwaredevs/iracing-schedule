@@ -63,6 +63,7 @@
                placeholder="Filter championships and special events…">
         <button type="button" id="filter-clear" class="filter-clear" hidden aria-label="Clear filter">&times;</button>
       </div>
+      <div class="category-filter" id="category-filter" role="group" aria-label="Filter by category"></div>
       <div class="license-filter" id="license-filter" role="group" aria-label="Filter by license"></div>
     </div>
   </div>
@@ -86,7 +87,9 @@
       <input type="checkbox" class="series-checkbox">
       <div>
         <label>
+          <span class="category-icon" hidden></span>
           <span class="license-badge" hidden></span>
+          <span class="ranked-badge" hidden><i class="icon-double-up"></i></span>
           <a class="series-name series-link" target="_blank" rel="noopener noreferrer" hidden></a>
           <span class="series-name series-plain" hidden></span>
         </label>
