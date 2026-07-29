@@ -88,7 +88,6 @@ const eventsPanel = document.getElementById("events-panel");
 const seriesCardTemplate = document.getElementById("series-card-template");
 const slotRowTemplate = document.getElementById("slot-row-template");
 const eventCardTemplate = document.getElementById("event-card-template");
-const resultCodeEl = document.getElementById("result-code");
 const resultUrlEl = document.getElementById("result-url");
 const filterInput = document.getElementById("filter-input");
 const filterClear = document.getElementById("filter-clear");
@@ -113,6 +112,10 @@ async function loadCurrentSeason() {
 
 function slugForCode(code) {
   return `${code.slice(0, 4)}_s${code.slice(5)}`;
+}
+
+function formatSeasonLabel(season) {
+  return `${season.year} Season ${season.quarter}`;
 }
 
 // ---- Rendering helpers ----
@@ -402,7 +405,6 @@ let currentManifest = null;
 function recomputeCode() {
   const { championships, events } = collectSelections();
   const code = encodeCalendarCode({ seasonCode: currentManifest.current, championships, events });
-  resultCodeEl.textContent = code;
   resultUrlEl.textContent = `${WORKER_BASE_URL}/calendar/${code}.ics`;
   const url = new URL(window.location.href);
   url.searchParams.set("code", code);
@@ -555,6 +557,8 @@ async function main() {
   // rewrite window.location's own ?code= param — see the boot-sequence note below.
   const initialCode = new URLSearchParams(window.location.search).get("code");
 
+  document.getElementById("season-heading").textContent = formatSeasonLabel(seasonData.season);
+
   renderChampionships(seasonData);
   renderEvents(seasonData);
 
@@ -690,6 +694,15 @@ async function main() {
     } catch (e) {
       /* clipboard unavailable — user can still select+copy the text manually */
     }
+  });
+
+  // ---- Help dialog ----
+  const helpDialog = document.getElementById("help-dialog");
+  document.getElementById("help-button").addEventListener("click", () => {
+    helpDialog.showModal();
+  });
+  helpDialog.addEventListener("click", (event) => {
+    if (event.target === helpDialog) helpDialog.close();
   });
 
   // ---- Paste-code box ----

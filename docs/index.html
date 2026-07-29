@@ -17,9 +17,9 @@
 <div class="page">
 
   <div class="masthead">
-    <span class="kicker">GMT · Race Control</span>
-    <h1>Pick your championships</h1>
-    <p class="lede">Browse championships and special events, see which track is up this week, and pick the weekly sessions you want on your calendar. No account, no email — your selections live entirely in the URL below.</p>
+    <span class="kicker">Unofficial iRacing tool</span>
+    <h1>Never miss your green flag</h1>
+    <p class="lede">Tick the iRacing championships and special events you race, pick your weekly session times, and turn it into a calendar that's actually yours. No account, no email — it all lives in a link you control.</p>
   </div>
 
   <details class="paste-code-box" id="paste-code-box">
@@ -33,17 +33,35 @@
   </details>
 
   <div class="result-panel" id="result-panel">
-    <div class="result-row">
-      <span class="result-label">Calendar code</span>
-      <code id="result-code">—</code>
+    <div class="result-actions">
+      <button type="button" id="copy-url-button" class="copy-url-button">Copy calendar URL</button>
+      <button type="button" id="help-button" class="help-button" aria-haspopup="dialog" aria-controls="help-dialog" title="How do I add this to my calendar app?">?</button>
     </div>
-    <div class="result-row">
-      <span class="result-label">Subscribe URL</span>
+    <details class="subscribe-url-box" id="subscribe-url-box">
+      <summary>Show the subscribe URL</summary>
       <code id="result-url">—</code>
-      <button type="button" id="copy-url-button">Copy</button>
-    </div>
-    <p class="result-hint">Paste the subscribe URL into Google/Apple/Outlook ("Add calendar by URL"). It updates automatically as you change picks below — copy it again any time.</p>
+    </details>
   </div>
+
+  <dialog id="help-dialog" class="help-dialog">
+    <form method="dialog">
+      <h2>Add this calendar to your favorite app</h2>
+      <dl>
+        <dt>Google Calendar</dt>
+        <dd>Settings &rarr; Add calendar &rarr; From URL &rarr; paste the subscribe URL &rarr; Add calendar.</dd>
+        <dt>Apple Calendar (Mac)</dt>
+        <dd>File &rarr; New Calendar Subscription&hellip; &rarr; paste the subscribe URL &rarr; Subscribe.</dd>
+        <dt>Apple Calendar (iPhone/iPad)</dt>
+        <dd>Settings &rarr; Calendar &rarr; Accounts &rarr; Add Account &rarr; Other &rarr; Add Subscribed Calendar &rarr; paste the subscribe URL.</dd>
+        <dt>Outlook</dt>
+        <dd>Add calendar &rarr; Subscribe from web &rarr; paste the subscribe URL &rarr; Import.</dd>
+      </dl>
+      <p class="help-dialog-note">It updates automatically as you change picks below — copy the URL again any time, no need to re-subscribe.</p>
+      <button type="submit" class="help-dialog-close">Close</button>
+    </form>
+  </dialog>
+
+  <h2 class="season-heading" id="season-heading"></h2>
 
   <div class="control-bar">
     <div class="control-row">
