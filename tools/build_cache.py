@@ -117,7 +117,7 @@ def _championship_to_dict(parsed: ParsedSeries) -> dict:
     session_time_options = _session_time_options(session_times_by_day)
     return {
         "name": parsed.name,
-        "category": "",
+        "category": parsed.category,
         "license_level": parsed.license_level,
         "cadence_text": parsed.cadence_text,
         "link_url": parsed.link_url,

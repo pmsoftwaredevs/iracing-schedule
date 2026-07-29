@@ -23,6 +23,7 @@ The series name in the PDF includes the season suffix ("... - 2025 Season 4"); t
 stripped so shared/series-match.js can match the same series name across seasons.
 """
 
+import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -30,6 +31,8 @@ from datetime import datetime, timedelta
 import pdfplumber
 
 from pipeline.licenses import LICENSE_ORDER
+
+logger = logging.getLogger(__name__)
 
 WEEK_RE = re.compile(r"^week\s+(\d+)\s*\((\d{4}-\d{2}-\d{2})\)", re.IGNORECASE)
 SEASON_SUFFIX_RE = re.compile(r"\s*-\s*\d{4}\s+Season\s+\d+.*$", re.IGNORECASE)
@@ -54,6 +57,14 @@ _LICENSE_NAME_TO_CODE = {
     "pro/wc": "P",
     "pro/world champion": "P",
 }
+# The PDF groups series under a top-level category ("OVAL", "SPORTS CAR", "FORMULA
+# CAR", "DIRT OVAL", "DIRT ROAD", "UNRANKED") which is itself subdivided by license
+# class, each subdivision headed by a line like "R Class Series (OVAL)". The
+# category name only ever appears written out in full inside that parenthetical —
+# the bare category heading above it (e.g. a standalone "OVAL" line) is redundant
+# with it and sits outside every table's bbox, so this is matched via page.search()
+# against the whole page rather than through a table cell.
+CATEGORY_HEADER_RE = re.compile(r"[A-Za-z]\s+Class\s+Series\s*\(([^)]+)\)")
 
 
 @dataclass
@@ -72,6 +83,7 @@ class ParsedSeries:
     weeks: list[ParsedWeek]
     link_url: str | None = None
     license_level: str = ""
+    category: str = ""
 
 
 class ScheduleParseError(ValueError):
@@ -171,11 +183,14 @@ def _is_continuation_table(table: list[list[str | None]]) -> bool:
     return bool(WEEK_RE.match(table[0][0].strip()))
 
 
-def _parse_table(table: list[list[str | None]], link_url: str | None) -> ParsedSeries | None:
+def _parse_table(table: list[list[str | None]], link_url: str | None, category: str) -> ParsedSeries | None:
     if not table or not table[0] or not table[0][0]:
         return None
     weeks = [week for row in table if (week := _parse_row(row)) is not None]
     if not weeks:
+        # A series header with no rows recognized as weeks (unexpected table
+        # layout) would otherwise be dropped with no trace of it ever existing.
+        logger.warning("no weeks parsed for series header %r; skipping", _series_name(table[0][0]))
         return None
     return ParsedSeries(
         name=_series_name(table[0][0]),
@@ -183,6 +198,7 @@ def _parse_table(table: list[list[str | None]], link_url: str | None) -> ParsedS
         weeks=weeks,
         link_url=link_url,
         license_level=_license_level(table[0][0]),
+        category=category,
     )
 
 
@@ -203,24 +219,48 @@ def _match_series_link(annots: list[dict], table_top: float, tolerance: float = 
     return min(candidates, key=lambda a: abs(a["top"] - table_top))["uri"]
 
 
+def _category_markers(page) -> list[tuple[float, str]]:
+    """(top, category) for every "<Letter> Class Series (<CATEGORY>)" line on the
+    page, sorted top-to-bottom, so callers can tell which series header table (by
+    its own top) each one precedes."""
+    return sorted(
+        (match["top"], match["groups"][0])
+        for match in page.search(CATEGORY_HEADER_RE, return_chars=False)
+    )
+
+
 def parse_schedule_pdf(path: str) -> list[ParsedSeries]:
     series_list: list[ParsedSeries] = []
+    current_category = ""
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
             annots = [
                 {"top": a["top"], "uri": a["uri"]} for a in (page.annots or []) if a.get("uri")
             ]
-            for pdf_table in page.find_tables():
+            markers = _category_markers(page)
+            marker_idx = 0
+            tables = sorted(page.find_tables(), key=lambda t: t.bbox[1])
+            for pdf_table in tables:
+                table_top = pdf_table.bbox[1]
+                # Category markers sit outside every table's bbox, so any marker
+                # above this table's top edge takes effect before it's parsed.
+                while marker_idx < len(markers) and markers[marker_idx][0] <= table_top:
+                    current_category = markers[marker_idx][1]
+                    marker_idx += 1
                 table = pdf_table.extract()
                 if _is_continuation_table(table):
                     weeks = [week for row in table if (week := _parse_row(row)) is not None]
                     if weeks and series_list:
                         series_list[-1].weeks.extend(weeks)
                     continue
-                link_url = _match_series_link(annots, pdf_table.bbox[1])
-                parsed = _parse_table(table, link_url)
+                link_url = _match_series_link(annots, table_top)
+                parsed = _parse_table(table, link_url, current_category)
                 if parsed is not None:
                     series_list.append(parsed)
+            # A marker with no table after it on this page (e.g. a class section
+            # whose first series starts on the next page) must still carry over.
+            if marker_idx < len(markers):
+                current_category = markers[-1][1]
     if not series_list:
         raise ScheduleParseError(f"No series schedules found in {path!r} — check table layout")
     return series_list

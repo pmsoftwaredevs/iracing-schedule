@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pipeline.parsers.schedule_pdf import (
+    CATEGORY_HEADER_RE,
     _cadence_text,
     _is_continuation_table,
     _license_level,
@@ -144,6 +145,19 @@ def test_continuation_table_detected_and_not_treated_as_new_series():
     assert _is_continuation_table(continuation_table)
 
 
+def test_category_header_re_extracts_category_from_class_series_line():
+    match = CATEGORY_HEADER_RE.search("R Class Series (SPORTS CAR)")
+    assert match is not None
+    assert match.group(1) == "SPORTS CAR"
+
+
+def test_category_header_re_does_not_match_bare_category_heading():
+    """The standalone heading above the class-series line (e.g. a lone "OVAL"
+    line) carries no parenthetical and must not match — only the "<Letter> Class
+    Series (<CATEGORY>)" line is used as the category source."""
+    assert CATEGORY_HEADER_RE.search("OVAL") is None
+
+
 def test_parse_schedule_pdf_against_real_fixture_page():
     series_list = parse_schedule_pdf(str(FIXTURE))
 
@@ -152,6 +166,9 @@ def test_parse_schedule_pdf_against_real_fixture_page():
     assert series.name == "Rookie Legends Cup by Simshop"
     assert series.cadence_text == "Races every 30 minutes"
     assert series.license_level == "R"
+    # The fixture is a single page lifted from mid-document, with no "<Letter>
+    # Class Series (<CATEGORY>)" line on it to source a category from.
+    assert series.category == ""
     assert len(series.weeks) == 12
     assert series.weeks[0].week_number == 1
     assert series.weeks[0].track_name == "Charlotte Motor Speedway - Legends Oval"
