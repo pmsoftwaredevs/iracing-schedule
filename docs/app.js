@@ -401,10 +401,28 @@ function collectSelections() {
 }
 
 let currentManifest = null;
+let currentCode = null;
+
+// Remembers the last copied calendar code so a returning visitor (no ?code=
+// in the URL) can be greeted with their existing selections pre-loaded —
+// see the CALENDAR_CODE_COOKIE read in main()'s boot sequence below.
+const CALENDAR_CODE_COOKIE = "ircal_code";
+const CALENDAR_CODE_COOKIE_MAX_AGE_DAYS = 365;
+
+function setCookie(name, value, days) {
+  const maxAge = days * 24 * 60 * 60;
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 function recomputeCode() {
   const { championships, events } = collectSelections();
   const code = encodeCalendarCode({ seasonCode: currentManifest.current, championships, events });
+  currentCode = code;
   resultUrlEl.textContent = `${WORKER_BASE_URL}/calendar/${code}.ics`;
   const url = new URL(window.location.href);
   url.searchParams.set("code", code);
@@ -555,7 +573,9 @@ async function main() {
 
   // Captured now, before anything (recomputeCode included) has a chance to
   // rewrite window.location's own ?code= param — see the boot-sequence note below.
-  const initialCode = new URLSearchParams(window.location.search).get("code");
+  // A cookie left by a previous "copy calendar URL" only kicks in when the
+  // request itself had no ?code=, so an explicit link always wins over it.
+  const initialCode = new URLSearchParams(window.location.search).get("code") || getCookie(CALENDAR_CODE_COOKIE);
 
   document.getElementById("season-heading").textContent = formatSeasonLabel(seasonData.season);
 
@@ -684,6 +704,7 @@ async function main() {
   // ---- Copy subscribe URL ----
   document.getElementById("copy-url-button").addEventListener("click", async () => {
     const button = document.getElementById("copy-url-button");
+    if (currentCode) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
     try {
       await navigator.clipboard.writeText(resultUrlEl.textContent);
       const original = button.textContent;
@@ -734,7 +755,7 @@ async function main() {
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   }
 
-  // ---- Deep link: ?code=... reopens the picker pre-filled ----
+  // ---- Deep link: ?code=... (or a remembered cookie) reopens the picker pre-filled ----
   // initialCode was captured at the top of main(), before recomputeCode() ever
   // ran — recomputeCode() itself rewrites the URL's ?code= param on every change,
   // so reading window.location here instead would see its own write and wrongly
