@@ -1,9 +1,10 @@
-# iRacing Calendar
+# iRacing Planner
 
-A static site for picking iRacing championships and special events, plus a
-subscribable `.ics` feed for whatever you picked. No accounts, no email, no
-database — your selections live entirely in a deterministic code embedded in
-the URL. See [ARCHITECTURE.md](ARCHITECTURE.md) for exactly how that works.
+A static site for planning your iRacing season: pick your championships and
+special events, then subscribe to a `.ics` feed built from your picks. No
+accounts, no email, no database — your selections live entirely in a
+deterministic code embedded in the URL. See [ARCHITECTURE.md](ARCHITECTURE.md)
+for exactly how that works.
 
 ## How it's built
 
