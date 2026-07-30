@@ -12,7 +12,7 @@
  * `applyCodeToCurrentSeason`'s `needsRollover` branch.
  */
 
-import { encodeCalendarCode, decodeCalendarCode } from "./shared/calendar-code.js";
+import { encodeCalendarCode, decodeCalendarCode, parseCalendarCode } from "./shared/calendar-code.js";
 import { resolveSelections, timeIndexForTime } from "./shared/resolve.js";
 import { applyRollover } from "./rollover.js";
 
@@ -403,6 +403,10 @@ function collectSelections() {
 
 let currentManifest = null;
 let currentCode = null;
+// A code with no championship/special-event records at all (just the season
+// code) carries no real selection — it isn't treated as a valid code for
+// query-param/cookie purposes, only as the base to build a real code from.
+let currentCodeHasSelections = false;
 
 // Remembers the last copied calendar code so a returning visitor (no ?code=
 // in the URL) can be greeted with their existing selections pre-loaded —
@@ -425,6 +429,11 @@ function getCookie(name) {
 
 function clearCookie(name) {
   document.cookie = `${name}=; max-age=0; path=/; SameSite=Lax`;
+}
+
+function hasCalendarCodeSelections(code) {
+  const parsed = parseCalendarCode(code);
+  return parsed.championships.length > 0 || parsed.events.length > 0;
 }
 
 // The consent choice itself is stored in localStorage rather than a cookie —
@@ -456,9 +465,14 @@ function recomputeCode() {
   const { championships, events } = collectSelections();
   const code = encodeCalendarCode({ seasonCode: currentManifest.current, championships, events });
   currentCode = code;
+  currentCodeHasSelections = championships.length > 0 || events.length > 0;
   resultUrlEl.textContent = `${WORKER_BASE_URL}/calendar/${code}.ics`;
   const url = new URL(window.location.href);
-  url.searchParams.set("code", code);
+  if (currentCodeHasSelections) {
+    url.searchParams.set("code", code);
+  } else {
+    url.searchParams.delete("code");
+  }
   window.history.replaceState(null, "", url);
 }
 
@@ -609,8 +623,12 @@ async function main() {
   // A cookie left by a previous "copy calendar URL" only kicks in when the
   // request itself had no ?code=, so an explicit link always wins over it —
   // and only when the visitor has actually opted in (see hasCookieConsent).
-  const initialCode = new URLSearchParams(window.location.search).get("code")
+  const rawInitialCode = new URLSearchParams(window.location.search).get("code")
     || (hasCookieConsent() ? getCookie(CALENDAR_CODE_COOKIE) : null);
+  // A code with no championship/special-event records (just a bare season
+  // code) isn't a valid code to load from the URL or cookie — treat it the
+  // same as no code being present at all.
+  const initialCode = rawInitialCode && hasCalendarCodeSelections(rawInitialCode) ? rawInitialCode : null;
 
   document.getElementById("season-heading").textContent = formatSeasonLabel(seasonData.season);
 
@@ -739,7 +757,7 @@ async function main() {
   // ---- Copy subscribe URL ----
   document.getElementById("copy-url-button").addEventListener("click", async () => {
     const button = document.getElementById("copy-url-button");
-    if (currentCode && hasCookieConsent()) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
+    if (currentCode && currentCodeHasSelections && hasCookieConsent()) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
     try {
       await navigator.clipboard.writeText(resultUrlEl.textContent);
       const original = button.textContent;
