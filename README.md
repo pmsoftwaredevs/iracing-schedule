@@ -116,3 +116,7 @@ Remaining gaps (carried over from the original app):
   iRacing publishes one and the next cache refresh picks it up).
 - Series aren't categorized by discipline (Oval/Road/Dirt/etc.) —
   `championship.category` isn't populated from the schedule PDF yet.
+
+## License
+
+BSD 3-Clause — see [LICENSE.md](LICENSE.md).

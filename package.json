@@ -2,6 +2,7 @@
   "name": "iracing-calendar",
   "private": true,
   "description": "Static picker/manager for iRacing championship calendars, plus the Cloudflare Worker that serves the live .ics feeds.",
+  "license": "BSD-3-Clause",
   "type": "module",
   "scripts": {
     "test": "node --test shared/*.test.js worker/test/*.js",
