@@ -6,7 +6,7 @@
     "start_date": "2026-06-09",
     "end_date": "2026-08-31"
   },
-  "generated_at": "2026-07-29T13:11:42Z",
+  "generated_at": "2026-07-30T12:14:57Z",
   "championships": [
     {
       "name": "Mini Stock Rookie Series by Thrustmaster",
@@ -38263,7 +38263,7 @@
     },
     {
       "name": "World of Outlaws Sprint Car Series",
-      "category": "",
+      "category": "DIRT OVAL",
       "license_level": "B",
       "cadence_text": "Races hourly at :45",
       "link_url": "http://members-ng.iracing.com/web/racing/official/series-list/6388/go-racing",
