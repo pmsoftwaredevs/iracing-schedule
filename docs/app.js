@@ -802,6 +802,20 @@ async function main() {
     ins.dataset.fullWidthResponsive = "true";
     adSlot.appendChild(ins);
     (window.adsbygoogle = window.adsbygoogle || []).push({});
+
+    // Google sets data-ad-status once it's done trying to fill the slot.
+    // Confirmed experimentally: even when unfilled, it still inserts a
+    // same-size measurement iframe into aswift_1_host, so an "is the host
+    // empty" check never fires — data-ad-status is the only reliable signal
+    // that nothing was actually served, and we hide the bar in that case
+    // instead of showing a blank strip pinned to the viewport.
+    const adStatusObserver = new MutationObserver(() => {
+      adStatusObserver.disconnect();
+      if (ins.dataset.adStatus === "unfilled") {
+        adSlot.hidden = true;
+      }
+    });
+    adStatusObserver.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
   }
 
   // ---- Deep link: ?code=... (or a remembered cookie) reopens the picker pre-filled ----
