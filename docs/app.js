@@ -89,6 +89,8 @@ const seriesCardTemplate = document.getElementById("series-card-template");
 const slotRowTemplate = document.getElementById("slot-row-template");
 const eventCardTemplate = document.getElementById("event-card-template");
 const resultUrlEl = document.getElementById("result-url");
+const copyUrlButton = document.getElementById("copy-url-button");
+const subscribeUrlBox = document.getElementById("subscribe-url-box");
 const filterInput = document.getElementById("filter-input");
 const filterClear = document.getElementById("filter-clear");
 const timezoneSelect = document.getElementById("timezone-select");
@@ -467,6 +469,9 @@ function recomputeCode() {
   currentCode = code;
   currentCodeHasSelections = championships.length > 0 || events.length > 0;
   resultUrlEl.textContent = `${WORKER_BASE_URL}/calendar/${code}.ics`;
+  copyUrlButton.disabled = !currentCodeHasSelections;
+  subscribeUrlBox.classList.toggle("is-disabled", !currentCodeHasSelections);
+  if (!currentCodeHasSelections) subscribeUrlBox.open = false;
   const url = new URL(window.location.href);
   if (currentCodeHasSelections) {
     url.searchParams.set("code", code);
@@ -755,19 +760,24 @@ async function main() {
   });
 
   // ---- Copy subscribe URL ----
-  document.getElementById("copy-url-button").addEventListener("click", async () => {
-    const button = document.getElementById("copy-url-button");
+  copyUrlButton.addEventListener("click", async () => {
     if (currentCode && currentCodeHasSelections && hasCookieConsent()) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
     try {
       await navigator.clipboard.writeText(resultUrlEl.textContent);
-      const original = button.textContent;
-      button.textContent = "Copied!";
+      const original = copyUrlButton.textContent;
+      copyUrlButton.textContent = "Copied!";
       setTimeout(() => {
-        button.textContent = original;
+        copyUrlButton.textContent = original;
       }, 1500);
     } catch (e) {
       /* clipboard unavailable — user can still select+copy the text manually */
     }
+  });
+
+  // A <details> element has no native "disabled" — block the toggle by
+  // intercepting the click on its <summary> before it takes effect.
+  subscribeUrlBox.querySelector("summary").addEventListener("click", (event) => {
+    if (!currentCodeHasSelections) event.preventDefault();
   });
 
   // ---- Help dialog ----
