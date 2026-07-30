@@ -417,7 +417,14 @@ let currentCodeHasSelections = false;
 // set or read once the visitor has opted in via the consent banner — see
 // COOKIE_CONSENT_KEY below.
 const CALENDAR_CODE_COOKIE = "ircal_code";
-const CALENDAR_CODE_COOKIE_MAX_AGE_DAYS = 365;
+// Same treatment for the timezone picker and the license/category filter
+// chips: remembered as non-essential cookies once consent is given, so a
+// returning visitor's explicit picks stick instead of resetting to the
+// browser-detected timezone / all-filters-on defaults on every visit.
+const TIMEZONE_COOKIE = "ircal_timezone";
+const LICENSE_FILTER_COOKIE = "ircal_licenses";
+const CATEGORY_FILTER_COOKIE = "ircal_categories";
+const COOKIE_MAX_AGE_DAYS = 365;
 
 function setCookie(name, value, days) {
   const maxAge = days * 24 * 60 * 60;
@@ -680,11 +687,24 @@ async function main() {
   } catch (e) {
     /* keep default */
   }
+  // A remembered explicit pick overrides the browser's auto-detected
+  // timezone — Intl re-detects the same "local" zone on every visit, so
+  // without this a saved choice would never stick.
+  const savedTimezone = hasCookieConsent() ? getCookie(TIMEZONE_COOKIE) : null;
+  if (savedTimezone && timezoneSelect.querySelector(`option[value="${savedTimezone}"]`)) {
+    timezoneSelect.value = savedTimezone;
+  }
   timezoneSelect.addEventListener("change", () => {
     document.querySelectorAll(".slot-row").forEach((row) => updateSlotRowLocal(row, seasonData));
+    if (hasCookieConsent()) setCookie(TIMEZONE_COOKIE, timezoneSelect.value, COOKIE_MAX_AGE_DAYS);
   });
 
   // ---- License filter chips ----
+  // A saved cookie (a comma-joined list of the codes that were left checked)
+  // overrides the all-checked default so a returning visitor's narrowed-down
+  // filter reappears instead of resetting to "show everything".
+  const savedLicenseCookie = hasCookieConsent() ? getCookie(LICENSE_FILTER_COOKIE) : null;
+  const savedLicenses = savedLicenseCookie === null ? null : new Set(savedLicenseCookie.split(",").filter(Boolean));
   for (const tier of LICENSE_TIERS) {
     const label = document.createElement("label");
     label.className = "license-toggle";
@@ -693,7 +713,7 @@ async function main() {
     input.type = "checkbox";
     input.className = "license-filter-checkbox";
     input.value = tier.code;
-    input.checked = true;
+    input.checked = savedLicenses ? savedLicenses.has(tier.code) : true;
     const chip = document.createElement("span");
     chip.className = "license-chip";
     chip.textContent = tier.code;
@@ -704,6 +724,8 @@ async function main() {
   }
 
   // ---- Category filter chips ----
+  const savedCategoryCookie = hasCookieConsent() ? getCookie(CATEGORY_FILTER_COOKIE) : null;
+  const savedCategories = savedCategoryCookie === null ? null : new Set(savedCategoryCookie.split(",").filter(Boolean));
   for (const tier of CATEGORY_TIERS) {
     const label = document.createElement("label");
     label.className = "category-toggle";
@@ -712,7 +734,7 @@ async function main() {
     input.type = "checkbox";
     input.className = "category-filter-checkbox";
     input.value = tier.code;
-    input.checked = true;
+    input.checked = savedCategories ? savedCategories.has(tier.code) : true;
     const chip = document.createElement("span");
     chip.className = "category-chip";
     chip.innerHTML = tier.icon;
@@ -726,8 +748,14 @@ async function main() {
     applyFilter();
     filterInput.focus();
   });
-  licenseFilterContainer.addEventListener("change", applyFilter);
-  categoryFilterContainer.addEventListener("change", applyFilter);
+  licenseFilterContainer.addEventListener("change", () => {
+    if (hasCookieConsent()) setCookie(LICENSE_FILTER_COOKIE, [...checkedLicenses()].join(","), COOKIE_MAX_AGE_DAYS);
+    applyFilter();
+  });
+  categoryFilterContainer.addEventListener("change", () => {
+    if (hasCookieConsent()) setCookie(CATEGORY_FILTER_COOKIE, [...checkedCategories()].join(","), COOKIE_MAX_AGE_DAYS);
+    applyFilter();
+  });
   applyFilter();
 
   // ---- Championship card interactions (event delegation) ----
@@ -761,7 +789,7 @@ async function main() {
 
   // ---- Copy subscribe URL ----
   copyUrlButton.addEventListener("click", async () => {
-    if (currentCode && currentCodeHasSelections && hasCookieConsent()) setCookie(CALENDAR_CODE_COOKIE, currentCode, CALENDAR_CODE_COOKIE_MAX_AGE_DAYS);
+    if (currentCode && currentCodeHasSelections && hasCookieConsent()) setCookie(CALENDAR_CODE_COOKIE, currentCode, COOKIE_MAX_AGE_DAYS);
     try {
       await navigator.clipboard.writeText(resultUrlEl.textContent);
       const original = copyUrlButton.textContent;
@@ -808,12 +836,21 @@ async function main() {
   syncConsentBannerSpace();
   document.getElementById("cookie-consent-accept").addEventListener("click", () => {
     setCookieConsent("accepted");
+    // Capture whatever's already picked at the moment of consent, rather
+    // than waiting for the next change event, so a visitor who set their
+    // timezone/filters before accepting doesn't lose that pick.
+    setCookie(TIMEZONE_COOKIE, timezoneSelect.value, COOKIE_MAX_AGE_DAYS);
+    setCookie(LICENSE_FILTER_COOKIE, [...checkedLicenses()].join(","), COOKIE_MAX_AGE_DAYS);
+    setCookie(CATEGORY_FILTER_COOKIE, [...checkedCategories()].join(","), COOKIE_MAX_AGE_DAYS);
     cookieConsentBanner.hidden = true;
     syncConsentBannerSpace();
   });
   document.getElementById("cookie-consent-reject").addEventListener("click", () => {
     setCookieConsent("rejected");
     clearCookie(CALENDAR_CODE_COOKIE);
+    clearCookie(TIMEZONE_COOKIE);
+    clearCookie(LICENSE_FILTER_COOKIE);
+    clearCookie(CATEGORY_FILTER_COOKIE);
     cookieConsentBanner.hidden = true;
     syncConsentBannerSpace();
   });
