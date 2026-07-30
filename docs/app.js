@@ -792,15 +792,30 @@ async function main() {
   // ---- Cookie consent banner ----
   // Shown until the visitor picks Accept/Reject; the choice (not the
   // calendar-code cookie itself) is what's remembered, so it isn't asked again.
+  //
+  // The page's top padding tracks the banner's own measured height rather
+  // than a fixed constant, via a ResizeObserver. Content/annoyance blockers
+  // commonly hide banners like this one with a cosmetic CSS rule that never
+  // touches the `hidden` attribute, which would otherwise leave a
+  // fixed-height gap at the top of the page with nothing in it.
+  const syncConsentBannerSpace = () => {
+    const height = cookieConsentBanner.hidden ? 0 : cookieConsentBanner.offsetHeight;
+    document.documentElement.style.setProperty("--consent-banner-space", `${height}px`);
+  };
+  new ResizeObserver(syncConsentBannerSpace).observe(cookieConsentBanner);
+
   cookieConsentBanner.hidden = getCookieConsent() !== null;
+  syncConsentBannerSpace();
   document.getElementById("cookie-consent-accept").addEventListener("click", () => {
     setCookieConsent("accepted");
     cookieConsentBanner.hidden = true;
+    syncConsentBannerSpace();
   });
   document.getElementById("cookie-consent-reject").addEventListener("click", () => {
     setCookieConsent("rejected");
     clearCookie(CALENDAR_CODE_COOKIE);
     cookieConsentBanner.hidden = true;
+    syncConsentBannerSpace();
   });
 
   // ---- Paste-code box ----

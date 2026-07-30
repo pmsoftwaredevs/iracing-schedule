@@ -858,9 +858,12 @@ body:has(.ad-slot:not([hidden])) .page {
 .cookie-consent-reject { color: var(--ink-soft); background: var(--surface-sunken); border: 1px solid var(--line); }
 .cookie-consent-reject:hover { background: var(--line); }
 
-/* Keep page content from hiding behind the fixed consent bar */
-body:has(.cookie-consent-banner:not([hidden])) .page {
-  padding-top: 4.5rem;
+/* Keep page content from hiding behind the fixed consent bar. The space is
+   the banner's own measured height (see app.js), not a fixed guess — that
+   way it collapses to 0 if a content blocker hides the banner via CSS
+   without touching its `hidden` attribute. */
+.page {
+  padding-top: var(--consent-banner-space, 0px);
 }
 
 /* ---- Footer ---- */
