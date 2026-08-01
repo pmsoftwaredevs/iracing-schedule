@@ -100,6 +100,11 @@ const pasteBox = document.getElementById("paste-code-box");
 const pasteInput = document.getElementById("paste-code-input");
 const pasteMessage = document.getElementById("paste-code-message");
 const cookieConsentBanner = document.getElementById("cookie-consent-banner");
+const filterToggle = document.getElementById("filter-toggle");
+const filtersRow = document.getElementById("filters-row");
+const tzToggle = document.getElementById("tz-toggle");
+const tzPicker = document.getElementById("tz-picker");
+const calendarCodeToggle = document.getElementById("calendar-code-toggle");
 
 async function fetchJson(path) {
   const response = await fetch(path, { cache: "no-cache" });
@@ -659,6 +664,19 @@ async function main() {
     });
   });
 
+  // ---- Mobile toolbar toggles: filter / timezone panels collapse behind
+  // icon buttons on narrow viewports (see the max-width: 640px CSS block) ----
+  filterToggle.addEventListener("click", () => {
+    const isOpen = filtersRow.classList.toggle("is-open");
+    filterToggle.classList.toggle("is-active", isOpen);
+    filterToggle.setAttribute("aria-expanded", String(isOpen));
+  });
+  tzToggle.addEventListener("click", () => {
+    const isOpen = tzPicker.classList.toggle("is-open");
+    tzToggle.classList.toggle("is-active", isOpen);
+    tzToggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
   // ---- Timezone select ----
   const fallbackTimezones = [
     "UTC", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
@@ -856,6 +874,18 @@ async function main() {
   });
 
   // ---- Paste-code box ----
+  // The "toggle" event fires for every open/close, whatever triggered it
+  // (this button, the native <summary> on wide viewports, or the deep-link
+  // boot sequence below setting pasteBox.open directly) — so listening to it
+  // here is the one place that keeps the button's state honest.
+  calendarCodeToggle.addEventListener("click", () => {
+    pasteBox.open = !pasteBox.open;
+    if (pasteBox.open) pasteBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  pasteBox.addEventListener("toggle", () => {
+    calendarCodeToggle.classList.toggle("is-active", pasteBox.open);
+    calendarCodeToggle.setAttribute("aria-expanded", String(pasteBox.open));
+  });
   document.getElementById("paste-code-apply").addEventListener("click", () => {
     const code = extractCode(pasteInput.value);
     if (!code) {

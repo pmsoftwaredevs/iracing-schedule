@@ -69,13 +69,24 @@
         <button type="button" class="tab-btn active" data-tab="championships">Championships</button>
         <button type="button" class="tab-btn" data-tab="events">Special Events</button>
       </div>
-      <div class="tz-picker">
+      <div class="control-toolbar-buttons">
+        <button type="button" id="filter-toggle" class="icon-toggle-btn" aria-expanded="false" aria-controls="filters-row" aria-label="Filters" title="Filters">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="btn-icon-svg"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>
+        </button>
+        <button type="button" id="tz-toggle" class="icon-toggle-btn" aria-expanded="false" aria-controls="tz-picker" aria-label="Timezone" title="Timezone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="btn-icon-svg"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/></svg>
+        </button>
+        <button type="button" id="calendar-code-toggle" class="icon-toggle-btn" aria-expanded="false" aria-controls="paste-code-box" aria-label="Load existing calendar" title="Load existing calendar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="btn-icon-svg"><path d="M9 15 4 10l5-5"/><path d="M4 10h9a6 6 0 0 1 6 6v2"/></svg>
+        </button>
+      </div>
+      <div class="tz-picker" id="tz-picker">
         <label>Your timezone
           <select id="timezone-select"></select>
         </label>
       </div>
     </div>
-    <div class="control-row">
+    <div class="control-row filters-row" id="filters-row">
       <div class="filter-wrap">
         <input type="text" id="filter-input" class="filter-input" autocomplete="off"
                placeholder="Filter championships and special events…">

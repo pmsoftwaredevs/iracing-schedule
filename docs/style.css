@@ -568,6 +568,39 @@ a:hover { color: var(--green-dark); }
 
 .tz-picker label { display: flex; align-items: center; gap: 0.5rem; }
 
+/* ---- Mobile toolbar toggles: filter / timezone / load-calendar icon buttons.
+   Hidden on wide viewports, where the controls they gate are shown inline. ---- */
+
+.control-toolbar-buttons {
+  display: none;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.icon-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.icon-toggle-btn:hover { color: var(--ink); }
+
+.icon-toggle-btn.is-active {
+  color: var(--green-dark);
+  border-color: var(--green);
+  background: var(--green-wash);
+}
+
+.btn-icon-svg { width: 1.05rem; height: 1.05rem; }
+
 select, input[type="text"], input[type="email"] {
   font-family: var(--sans);
   font-size: 0.88rem;
@@ -898,6 +931,21 @@ body:has(.ad-slot:not([hidden])) .page {
   .schedule-list li { grid-template-columns: 2.4rem 5.5rem 1fr; font-size: 0.78rem; }
   .masthead h1 { font-size: 1.55rem; }
   .result-panel { top: 0; }
+}
+
+/* ---- Mobile: collapse the timezone picker, filter controls, and the
+   "already have a calendar?" box behind single-line icon-button toggles. ---- */
+@media (max-width: 640px) {
+  .control-toolbar-buttons { display: flex; }
+
+  .tz-picker { display: none; }
+  .tz-picker.is-open { display: flex; flex-basis: 100%; }
+
+  .control-row.filters-row { display: none; }
+  .control-row.filters-row.is-open { display: flex; }
+
+  .paste-code-box > summary { display: none; }
+  .paste-code-box:not([open]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
