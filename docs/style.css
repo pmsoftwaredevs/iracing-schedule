@@ -356,6 +356,21 @@ a:hover { color: var(--green-dark); }
 
 /* ---- License filter chips (control bar) ---- */
 
+.category-filter-group,
+.license-filter-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.filter-group-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
 .license-filter {
   display: flex;
   flex-wrap: wrap;
