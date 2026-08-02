@@ -193,6 +193,12 @@ function buildChampionshipCard(championship, index) {
   nameEl.textContent = championship.name;
   if (championship.link_url) nameEl.href = championship.link_url;
 
+  if (championship.logo_url) {
+    const logo = card.querySelector(".series-logo");
+    logo.hidden = false;
+    logo.src = championship.logo_url;
+  }
+
   const durationLabel = formatDuration(championship.typical_session_duration_minutes);
   if (durationLabel) {
     const durationEl = card.querySelector(".series-duration");
@@ -241,16 +247,28 @@ function buildEventCard(event, index) {
   checkbox.id = `event-${index}`;
   card.querySelector("label").setAttribute("for", checkbox.id);
 
-  const nameEl = card.querySelector(".series-name");
+  const nameEl = event.link_url ? card.querySelector(".series-link") : card.querySelector(".series-plain");
+  nameEl.hidden = false;
   nameEl.textContent = event.name;
+  if (event.link_url) nameEl.href = event.link_url;
   if (event.date_end < nowIso) nameEl.closest("label").classList.add("event-past");
+
+  if (event.logo_url) {
+    const logo = card.querySelector(".series-logo");
+    logo.hidden = false;
+    logo.src = event.logo_url;
+  }
 
   let dateRange = event.date_start;
   if (event.date_end !== event.date_start) dateRange += ` – ${event.date_end}`;
-  let hint = `(${dateRange})`;
-  if (event.track_name) hint += ` — ${event.track_name}`;
-  if (event.car_class) hint += ` — ${event.car_class}`;
-  card.querySelector(".gmt-hint").textContent = hint;
+  card.querySelector(".event-dates").textContent = dateRange;
+
+  const locationParts = [event.track_name, event.car_class].filter(Boolean);
+  if (locationParts.length) {
+    const locationEl = card.querySelector(".event-location");
+    locationEl.hidden = false;
+    locationEl.textContent = locationParts.join(" — ");
+  }
 
   return card;
 }
@@ -794,8 +812,10 @@ async function main() {
     card.classList.toggle("is-checked", checkbox.checked);
     const index = Number(checkbox.dataset.championshipIndex);
     const slotsContainer = card.querySelector(".slots-container");
-    if (checkbox.checked && slotsContainer.children.length === 0) {
-      addSlotRow(index, seasonData);
+    if (checkbox.checked) {
+      if (slotsContainer.children.length === 0) addSlotRow(index, seasonData);
+    } else {
+      slotsContainer.innerHTML = "";
     }
     recomputeCode();
   });

@@ -128,6 +128,7 @@
   <div class="series-card">
     <div class="series-head">
       <input type="checkbox" class="series-checkbox">
+      <img class="series-logo" hidden alt="">
       <div>
         <label>
           <span class="category-icon" hidden></span>
@@ -164,9 +165,16 @@
   <div class="series-card event-card">
     <div class="series-head">
       <input type="checkbox" class="event-checkbox">
+      <img class="series-logo" hidden alt="">
       <div>
-        <label><span class="series-name"></span></label>
-        <span class="gmt-hint"></span>
+        <label>
+          <a class="series-name series-link" target="_blank" rel="noopener noreferrer" hidden></a>
+          <span class="series-name series-plain" hidden></span>
+        </label>
+        <div class="event-details">
+          <span class="event-dates"></span>
+          <span class="event-location" hidden></span>
+        </div>
       </div>
     </div>
   </div>

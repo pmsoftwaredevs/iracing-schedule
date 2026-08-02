@@ -640,12 +640,17 @@ select, input[type="text"], input[type="email"] {
 /* ---- Series card ---- */
 
 .series-card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 0.9rem 1rem;
+  padding: 0.9rem 5.75rem 0.9rem 1rem;
   margin-bottom: 0.65rem;
   box-shadow: var(--shadow);
+  /* top/bottom offset (0.9rem each) + logo height (4.5rem) — short cards (a
+     one-line special event) would otherwise be shorter than the absolutely
+     positioned logo and it'd overflow past the card's bottom edge. */
+  min-height: 6.3rem;
 }
 
 .series-card.is-checked { border-color: var(--green); }
@@ -663,6 +668,23 @@ select, input[type="text"], input[type="email"] {
   accent-color: var(--green);
   flex-shrink: 0;
 }
+
+/* Absolutely positioned (relative to .series-card, not .series-head) so its size
+   is independent of the card's own layout — a bigger logo never stretches the
+   card's height or pushes its text around, it just occupies the reserved
+   padding-right strip. */
+.series-logo {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.series-logo[hidden] { display: none; }
 
 .series-head label { cursor: pointer; }
 
@@ -811,6 +833,8 @@ select, input[type="text"], input[type="email"] {
   padding: 0;
 }
 
+.series-card:not(.is-checked) .add-slot { display: none; }
+
 .add-slot:hover { color: var(--green-dark); }
 
 /* ---- Special events ---- */
@@ -818,6 +842,26 @@ select, input[type="text"], input[type="email"] {
 .event-card { border-color: var(--line); }
 .event-card .series-name { font-weight: 600; }
 .event-past { text-decoration: line-through; opacity: 0.55; }
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.4rem;
+}
+
+.event-dates {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.event-location {
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+}
+
+.event-location[hidden] { display: none; }
 
 code {
   font-family: var(--mono);
@@ -931,6 +975,9 @@ body:has(.ad-slot:not([hidden])) .page {
   .schedule-list li { grid-template-columns: 2.4rem 5.5rem 1fr; font-size: 0.78rem; }
   .masthead h1 { font-size: 1.55rem; }
   .result-panel { top: 0; }
+
+  .series-card { padding-right: 4rem; min-height: 4.8rem; }
+  .series-logo { width: 3rem; height: 3rem; }
 }
 
 /* ---- Mobile: collapse the timezone picker, filter controls, and the
