@@ -10,6 +10,9 @@ date range (formats seen: "February 20-22, 2026", "June 30 – July 6, 2026"
 guessed). Track name comes from the first `<a href="/tracks/...">` link in the
 section if present (not every event links one). Car class/era comes from the first
 `<details><summary>` if present (e.g. "1987 NASCAR Cup" for the Firecracker 400).
+The section's "MORE INFO" button (a `.wp-block-button__link`) links to the event's
+forum thread — always on the forums.iracing.com domain, which is checked here so a
+markup change elsewhere on the page can't smuggle in an unrelated link.
 """
 
 import re
@@ -42,6 +45,8 @@ DATE_RE = re.compile(
 
 SLUG_RE = re.compile(r"^[a-z0-9-]+$")
 TRACK_LINK_RE = re.compile(r"^/tracks/")
+MORE_INFO_RE = re.compile(r"^more info$", re.IGNORECASE)
+FORUM_LINK_PREFIX = "https://forums.iracing.com"
 
 
 @dataclass
@@ -53,6 +58,7 @@ class ParsedSpecialEvent:
     track_name: str | None
     track_path: str | None
     car_class: str | None
+    link_url: str | None
 
 
 class SpecialEventsPageParseError(ValueError):
@@ -113,6 +119,15 @@ def _parse_section(section) -> ParsedSpecialEvent | None:
     summary = section.find("summary")
     car_class = summary.get_text(strip=True) if summary else None
 
+    link_url = None
+    for link in section.find_all("a", class_="wp-block-button__link"):
+        if not MORE_INFO_RE.match(link.get_text(strip=True)):
+            continue
+        href = link.get("href")
+        if href and href.startswith(FORUM_LINK_PREFIX):
+            link_url = href
+        break
+
     return ParsedSpecialEvent(
         slug=slug,
         name=name,
@@ -121,6 +136,7 @@ def _parse_section(section) -> ParsedSpecialEvent | None:
         track_name=track_name,
         track_path=track_path,
         car_class=car_class,
+        link_url=link_url,
     )
 
 

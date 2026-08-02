@@ -36,6 +36,7 @@ def _event(slug: str, name: str) -> ParsedSpecialEvent:
         track_name=None,
         track_path=None,
         car_class=None,
+        link_url=None,
     )
 
 

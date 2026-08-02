@@ -137,6 +137,7 @@ def _special_event_to_dict(parsed: ParsedSpecialEvent) -> dict:
         "track_name": parsed.track_name,
         "track_path": parsed.track_path,
         "car_class": parsed.car_class,
+        "link_url": parsed.link_url,
     }
 
 

@@ -53,3 +53,19 @@ def test_track_link_is_optional():
 
     # Daytona 500's body text doesn't happen to hyperlink the track name.
     assert by_name["Daytona 500"].track_name is None
+
+
+def test_more_info_link_extracted_and_domain_checked():
+    events = parse_special_events_page(FIXTURE.read_text())
+    by_name = {e.name: e for e in events}
+
+    bathurst = by_name["Bathurst 12"]
+    assert bathurst.link_url == "https://forums.iracing.com/discussion/92109/bathurst-12-hour-presented-by-rss/p1/"
+
+
+def test_more_info_link_is_optional():
+    events = parse_special_events_page(FIXTURE.read_text())
+    by_name = {e.name: e for e in events}
+
+    # Firecracker 400's section has no "MORE INFO" button in the fixture.
+    assert by_name["Firecracker 400"].link_url is None
