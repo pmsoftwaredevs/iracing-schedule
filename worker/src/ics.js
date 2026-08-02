@@ -80,7 +80,7 @@ function seriesEvents(picked, seasonCode) {
       events.push(
         buildTimedEvent({
           uid: `${seasonCode}-c${index}-w${week.week_number}-d${slot.day}t${slot.timeGmt.replace(":", "")}@iracing-calendar`,
-          summary: `${championship.name} — ${week.track_name}`,
+          summary: `${championship.name} — ${week.track_name} (W${week.week_number})`,
           location: week.track_name,
           dtstart,
           dtend,
