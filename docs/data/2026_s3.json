@@ -6,7 +6,7 @@
     "start_date": "2026-06-09",
     "end_date": "2026-08-31"
   },
-  "generated_at": "2026-08-01T11:12:33Z",
+  "generated_at": "2026-08-02T07:00:30Z",
   "championships": [
     {
       "name": "Mini Stock Rookie Series by Thrustmaster",
@@ -502,7 +502,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/mini-stock-rookie-series-by-thrustmaster.png"
     },
     {
       "name": "Rookie Legends Cup by Simshop",
@@ -998,7 +999,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/rookie-legends-cup-by-simshop.png"
     },
     {
       "name": "Rookie Street Stock Series by Fanatec",
@@ -1494,7 +1496,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/rookie-street-stock-series-by-fanatec.png"
     },
     {
       "name": "ARCA Menards Series",
@@ -1798,7 +1801,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/arca-menards-series.png"
     },
     {
       "name": "CARS Tour Late Model Stocks - Fixed",
@@ -2006,7 +2010,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/cars-tour-late-model-stocks-fixed.png"
     },
     {
       "name": "Draft Master Challenge by Simagic",
@@ -2310,7 +2315,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/draft-master-challenge-by-simagic.png"
     },
     {
       "name": "Jr Open Wheel Oval Challenge",
@@ -2614,7 +2620,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/jr-open-wheel-oval-challenge.png"
     },
     {
       "name": "SK Modified Series",
@@ -2822,7 +2829,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/sk-modified-series.png"
     },
     {
       "name": "SK Modified Weekly Series",
@@ -3030,7 +3038,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/sk-modified-weekly-series.png"
     },
     {
       "name": "SRX Series - Fixed",
@@ -3526,7 +3535,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/srx-series-fixed.png"
     },
     {
       "name": "CARS Tour Late Model Stocks",
@@ -3734,7 +3744,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/cars-tour-late-model-stocks.png"
     },
     {
       "name": "Indy NXT Oval Series - Fixed",
@@ -4038,7 +4049,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/indy-nxt-oval-series-fixed.png"
     },
     {
       "name": "Legends Cup by Go Motorsports Shop",
@@ -4342,7 +4354,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": "logos/championships/legends-cup-by-go-motorsports-shop.png"
     },
     {
       "name": "NASCAR Class C Series - Fixed",
@@ -4646,7 +4659,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-class-c-series-fixed.png"
     },
     {
       "name": "NASCAR Gen 4 Cup Series",
@@ -4854,7 +4868,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-gen-4-cup-series.png"
     },
     {
       "name": "NASCAR iRacing Class C Series Series - 2026 Season",
@@ -5251,7 +5266,8 @@
           "date_end": "2026-11-09",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-iracing-class-c-series-series-2026-season.png"
     },
     {
       "name": "NASCAR iRacing Series - 2026 Season Fixed",
@@ -5915,7 +5931,8 @@
           "date_end": "2026-11-10",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-iracing-series-2026-season-fixed.png"
     },
     {
       "name": "NASCAR iRacing Series - 2026 Season Open",
@@ -6579,7 +6596,8 @@
           "date_end": "2026-11-11",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-iracing-series-2026-season-open.png"
     },
     {
       "name": "NASCAR Modified Tour - 2026 Season Fixed",
@@ -7173,7 +7191,8 @@
           "date_end": "2026-12-01",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "NASCAR Tour Modified Series",
@@ -7381,7 +7400,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-tour-modified-series.png"
     },
     {
       "name": "NASCAR Tour Modified Series - Fixed",
@@ -7589,7 +7609,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-tour-modified-series.png"
     },
     {
       "name": "Street Stock Series by Next Level Racing",
@@ -7893,7 +7914,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/street-stock-series-by-next-level-racing.png"
     },
     {
       "name": "Super Late Model Series",
@@ -8101,7 +8123,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/super-late-model-series.png"
     },
     {
       "name": "Super Late Model Tour - 2026 Season Fixed",
@@ -8702,7 +8725,8 @@
           "date_end": "2026-12-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/super-late-model-tour-2026-season-fixed.png"
     },
     {
       "name": "INDYCAR Series - Oval - Fixed",
@@ -9006,7 +9030,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/indycar-series-oval-fixed.png"
     },
     {
       "name": "NASCAR 1987 Legends Cup",
@@ -9214,7 +9239,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-1987-legends-cup.png"
     },
     {
       "name": "NASCAR iRacing Class B Series Series - 2026 Season",
@@ -9611,7 +9637,8 @@
           "date_end": "2026-11-09",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-iracing-class-b-series-series-2026-season.png"
     },
     {
       "name": "NASCAR O'Reilly Auto Parts Series - Fixed",
@@ -9819,7 +9846,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Silver Crown Cup",
@@ -10027,7 +10055,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/silver-crown-cup.png"
     },
     {
       "name": "Sprint Car Cup",
@@ -10235,7 +10264,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 60
         }
-      ]
+      ],
+      "logo_url": "logos/championships/sprint-car-cup.png"
     },
     {
       "name": "NASCAR Class A Series",
@@ -10443,7 +10473,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-class-a-series.png"
     },
     {
       "name": "NASCAR Class A Series - Fixed",
@@ -10651,7 +10682,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-class-a-series.png"
     },
     {
       "name": "BMW M2 Cup",
@@ -11147,7 +11179,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 12
         }
-      ]
+      ],
+      "logo_url": "logos/championships/bmw-m2-cup.png"
     },
     {
       "name": "Global Mazda MX-5 Cup by Fanatec",
@@ -11643,7 +11676,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 12
         }
-      ]
+      ],
+      "logo_url": "logos/championships/global-mazda-mx-5-cup-by-fanatec.png"
     },
     {
       "name": "iTested Series",
@@ -11870,7 +11904,8 @@
           "date_end": "2026-07-27",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "BMW M Power Challenge",
@@ -12174,7 +12209,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/bmw-m-power-challenge.png"
     },
     {
       "name": "Clio Cup",
@@ -12478,7 +12514,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/clio-cup.png"
     },
     {
       "name": "Ford Mustang Challenge by Skip Barber",
@@ -12782,7 +12819,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/ford-mustang-challenge-by-skip-barber.png"
     },
     {
       "name": "Global Sports Car Challenge by Fanatec",
@@ -13086,7 +13124,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/global-sports-car-challenge-by-fanatec.png"
     },
     {
       "name": "Legends Road Cup by Go Motorsports Shop",
@@ -13390,7 +13429,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/legends-road-cup-by-go-motorsports-shop.png"
     },
     {
       "name": "Mission R Challenge",
@@ -13598,7 +13638,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/mission-r-challenge.png"
     },
     {
       "name": "NASCAR Euro Series 2026 Season 3",
@@ -13902,7 +13943,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Nurburgring Endurance Championship - 2026 Season",
@@ -13998,7 +14040,8 @@
           "date_end": "2026-11-13",
           "duration_minutes": 240
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Production Car Challenge by Sim-Lab",
@@ -14302,7 +14345,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/production-car-challenge-by-sim-lab.png"
     },
     {
       "name": "Production Endurance Challenge",
@@ -14412,7 +14456,8 @@
           "date_end": "2026-09-10",
           "duration_minutes": 120
         }
-      ]
+      ],
+      "logo_url": "logos/championships/production-endurance-challenge.png"
     },
     {
       "name": "Rain Master Challenge by Podium 1",
@@ -14716,7 +14761,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/rain-master-challenge-by-podium-1.png"
     },
     {
       "name": "Spec Racer Ford Challenge",
@@ -15020,7 +15066,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/spec-racer-ford-challenge.png"
     },
     {
       "name": "TCR Virtual Challenge",
@@ -15228,7 +15275,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/tcr-virtual-challenge.png"
     },
     {
       "name": "TCR Virtual Challenge - Fixed",
@@ -15436,7 +15484,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/tcr-virtual-challenge-fixed.png"
     },
     {
       "name": "Toyota GR86 Cup by SIMAGIC",
@@ -15932,7 +15981,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/toyota-gr86-cup-by-simagic.png"
     },
     {
       "name": "2026 6 Hours of Road America",
@@ -16351,7 +16401,8 @@
           "date_end": "2026-07-30",
           "duration_minutes": 360
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Advanced Mazda MX-5 Cup by Heusinkveld",
@@ -16655,7 +16706,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": "logos/championships/advanced-mazda-mx-5-cup-by-heusinkveld.png"
     },
     {
       "name": "Creventic Endurance Series - 2026 Season",
@@ -16710,7 +16762,8 @@
           "date_end": "2026-10-02",
           "duration_minutes": 1440
         }
-      ]
+      ],
+      "logo_url": "logos/championships/creventic-endurance-series-2026-season.png"
     },
     {
       "name": "Ferrari 296 Challenge 2026 Season 3",
@@ -17014,7 +17067,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/ferrari-296-challenge-2026-season-3.png"
     },
     {
       "name": "GT Endurance Series by Simucube",
@@ -17122,7 +17176,8 @@
           "date_end": "2026-09-11",
           "duration_minutes": 180
         }
-      ]
+      ],
+      "logo_url": "logos/championships/gt-endurance-series-by-simucube.png"
     },
     {
       "name": "GT4 Falken Tyre Challenge",
@@ -17330,7 +17385,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/gt4-falken-tyre-challenge.png"
     },
     {
       "name": "IMSA Michelin Pilot Challenge",
@@ -17398,7 +17454,8 @@
           "date_end": "2026-09-11",
           "duration_minutes": 120
         }
-      ]
+      ],
+      "logo_url": "logos/championships/imsa-michelin-pilot-challenge.png"
     },
     {
       "name": "IMSA Sportscar Endurance Challenge",
@@ -17466,7 +17523,8 @@
           "date_end": "2026-09-04",
           "duration_minutes": 120
         }
-      ]
+      ],
+      "logo_url": "logos/championships/imsa-sportscar-endurance-challenge.png"
     },
     {
       "name": "IMSA Vintage Series",
@@ -17674,7 +17732,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 40
         }
-      ]
+      ],
+      "logo_url": "logos/championships/imsa-vintage-series.png"
     },
     {
       "name": "iRacing Porsche Cup - Fixed by CONSPIT",
@@ -17882,7 +17941,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/iracing-porsche-cup-fixed-by-conspit.png"
     },
     {
       "name": "iRacing Porsche Cup by CONSPIT",
@@ -18090,7 +18150,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "LMP3 Trophy",
@@ -18298,7 +18359,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/lmp3-trophy.png"
     },
     {
       "name": "Porsche Esports Supercup Global Open Qualifiers",
@@ -18350,7 +18412,8 @@
           "date_end": "2026-06-09",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Radical Esports Cup",
@@ -18558,7 +18621,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/radical-esports-cup.png"
     },
     {
       "name": "Ring Meister by LVRY",
@@ -18862,7 +18926,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/ring-meister-by-lvry.png"
     },
     {
       "name": "Sports Car Challenge by Falken Tyre",
@@ -19070,7 +19135,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": "logos/championships/sports-car-challenge-by-falken-tyre.png"
     },
     {
       "name": "Stock Car Brasil",
@@ -19278,7 +19344,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/stock-car-brasil.png"
     },
     {
       "name": "Supercars Series",
@@ -19486,7 +19553,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/supercars-series.png"
     },
     {
       "name": "Supercars Series - Australian Servers",
@@ -19694,7 +19762,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Global Endurance Tour",
@@ -19760,7 +19829,8 @@
           "date_end": "2026-09-11",
           "duration_minutes": 1440
         }
-      ]
+      ],
+      "logo_url": "logos/championships/global-endurance-tour.png"
     },
     {
       "name": "GT Sprint Series by Simucube",
@@ -19968,7 +20038,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 40
         }
-      ]
+      ],
+      "logo_url": "logos/championships/gt-sprint-series-by-simucube.png"
     },
     {
       "name": "GT3 Challenge Fixed by Fanatec",
@@ -20176,7 +20247,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/gt3-challenge-fixed-by-fanatec.png"
     },
     {
       "name": "GTE Sprint Series",
@@ -20384,7 +20456,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 45
         }
-      ]
+      ],
+      "logo_url": "logos/championships/gte-sprint-series.png"
     },
     {
       "name": "IMSA Endurance Series",
@@ -20452,7 +20525,8 @@
           "date_end": "2026-09-04",
           "duration_minutes": 160
         }
-      ]
+      ],
+      "logo_url": "logos/championships/imsa-endurance-series.png"
     },
     {
       "name": "iRacing DTM Series - 2026 Season",
@@ -20534,7 +20608,8 @@
           "date_end": "2026-10-14",
           "duration_minutes": 55
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "iRacing GT3 Regional Tour - Americas",
@@ -20838,7 +20913,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/iracing-gt3-regional-tour-americas.png"
     },
     {
       "name": "iRacing GT3 Regional Tour - Asia Pacific",
@@ -21142,7 +21218,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/iracing-gt3-regional-tour-asia-pacific.png"
     },
     {
       "name": "iRacing GT3 Regional Tour - Europe",
@@ -21446,7 +21523,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/iracing-gt3-regional-tour-europe.png"
     },
     {
       "name": "LMP2 Challenge",
@@ -21654,7 +21732,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/lmp2-challenge.png"
     },
     {
       "name": "Proto-GT Challenge 2026 Season 3",
@@ -21862,7 +21941,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": "logos/championships/proto-gt-challenge-2026-season-3.png"
     },
     {
       "name": "Prototype Challenge",
@@ -22070,7 +22150,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/prototype-challenge.png"
     },
     {
       "name": "IMSA iRacing Series",
@@ -22278,7 +22359,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 45
         }
-      ]
+      ],
+      "logo_url": "logos/championships/imsa-iracing-series.png"
     },
     {
       "name": "IMSA iRacing Series - Fixed",
@@ -22486,7 +22568,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 35
         }
-      ]
+      ],
+      "logo_url": "logos/championships/imsa-iracing-series.png"
     },
     {
       "name": "Formula 1600 Rookie Series by Asetek Racing",
@@ -22982,7 +23065,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 12
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-1600-rookie-series-by-asetek-racing.png"
     },
     {
       "name": "Formula Vee Series by trophi.ai",
@@ -23478,7 +23562,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 12
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-vee-series-by-trophi-ai.png"
     },
     {
       "name": "FIA F4 Esports Regional Tour - America",
@@ -23782,7 +23867,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/fia-f4-esports-regional-tour-america.png"
     },
     {
       "name": "FIA F4 Esports Regional Tour - Asia Pacific",
@@ -24086,7 +24172,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/fia-f4-esports-regional-tour-asia-pacific.png"
     },
     {
       "name": "FIA F4 Esports Regional Tour - Europe",
@@ -24390,7 +24477,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/fia-f4-esports-regional-tour-europe.png"
     },
     {
       "name": "FIA Formula 4 Challenge - Fixed",
@@ -24694,7 +24782,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 15
         }
-      ]
+      ],
+      "logo_url": "logos/championships/fia-formula-4-challenge-fixed.png"
     },
     {
       "name": "Motorsport UK FF 1600 Trophy by Thrustmaster",
@@ -24998,7 +25087,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/motorsport-uk-ff-1600-trophy-by-thrustmaster.png"
     },
     {
       "name": "Skip Barber Race Series",
@@ -25302,7 +25392,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/skip-barber-race-series.png"
     },
     {
       "name": "US Open Wheel D - USF 2000 Series",
@@ -25510,7 +25601,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/us-open-wheel-d-usf-2000-series.png"
     },
     {
       "name": "Dallara Formula iR",
@@ -25718,7 +25810,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dallara-formula-ir.png"
     },
     {
       "name": "Formula A - Grand Prix Tour - Fixed - 2026 Season",
@@ -25920,7 +26013,8 @@
           "date_end": "2026-12-09",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-a-grand-prix-tour-fixed-2026-season.png"
     },
     {
       "name": "Formula C - Dallara F3 Series",
@@ -26128,7 +26222,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-c-dallara-f3-series.png"
     },
     {
       "name": "Formula C - Super Formula Lights - Fixed by RSS",
@@ -26336,7 +26431,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 20
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-c-super-formula-lights-fixed-by-rss.png"
     },
     {
       "name": "Formula C - Super Formula Lights by RSS",
@@ -26544,7 +26640,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-c-super-formula-lights-by-rss.png"
     },
     {
       "name": "Indy NXT iRacing Series - 2026 Season",
@@ -27068,7 +27165,8 @@
           "date_end": "2026-09-11",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Indy NXT Road Series - Fixed",
@@ -27372,7 +27470,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/indy-nxt-road-series-fixed.png"
     },
     {
       "name": "INDYCAR iRacing Series - 2026 Season",
@@ -27903,7 +28002,8 @@
           "date_end": "2026-09-09",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/indycar-iracing-series-2026-season.png"
     },
     {
       "name": "iRacing Formula A - Grand Prix Tour - 2026 Season",
@@ -28105,7 +28205,8 @@
           "date_end": "2026-12-10",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/iracing-formula-a-grand-prix-tour-2026-season.png"
     },
     {
       "name": "iRacing Lotus 79 Grand Prix Series",
@@ -28313,7 +28414,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/iracing-lotus-79-grand-prix-series.png"
     },
     {
       "name": "Lotus 49 Grand Prix Legends",
@@ -28521,7 +28623,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/lotus-49-grand-prix-legends.png"
     },
     {
       "name": "Vintage Grand Prix Tour - 2026 Season",
@@ -28663,7 +28766,8 @@
           "date_end": "2026-11-24",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/vintage-grand-prix-tour-2026-season.png"
     },
     {
       "name": "Formula B - Super Formula Series - Fixed",
@@ -28871,7 +28975,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-b-super-formula-series-fixed.png"
     },
     {
       "name": "Formula B - Super Formula Series 2026 Season 3",
@@ -29079,7 +29184,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-b-super-formula-series-2026-season-3.png"
     },
     {
       "name": "INDYCAR Series",
@@ -29287,7 +29393,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/indycar-series.png"
     },
     {
       "name": "INDYCAR Series - Fixed",
@@ -29495,7 +29602,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/indycar-series-fixed.png"
     },
     {
       "name": "Formula A - Cosworth Cup Grand Prix",
@@ -29703,7 +29811,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-a-cosworth-cup-grand-prix.png"
     },
     {
       "name": "Formula A - Cosworth Cup Grand Prix - Fixed",
@@ -29911,7 +30020,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/formula-a-cosworth-cup-grand-prix-fixed.png"
     },
     {
       "name": "Dirt Mini Stock Rookie Series",
@@ -30215,7 +30325,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirt-mini-stock-rookie-series.png"
     },
     {
       "name": "DIRTcar Street Stock Rookie by IMB Racewear",
@@ -30519,7 +30630,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-street-stock-rookie-by-imb-racewear.png"
     },
     {
       "name": "Micro Non Wing Sprint Car Rookie Series",
@@ -30823,7 +30935,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     },
     {
       "name": "Micro Winged Sprint Car Rookie by Thrustmaster",
@@ -31127,7 +31240,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/micro-winged-sprint-car-rookie-by-thrustmaster.png"
     },
     {
       "name": "Dirt Legends Cup",
@@ -31431,7 +31545,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirt-legends-cup.png"
     },
     {
       "name": "DIRTcar 305 Sprint Car Series by Fanatec",
@@ -31735,7 +31850,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-305-sprint-car-series-by-fanatec.png"
     },
     {
       "name": "DIRTcar 358 Modified Series",
@@ -32039,7 +32155,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-358-modified-series.png"
     },
     {
       "name": "DIRTcar Limited Late Model Series",
@@ -32343,7 +32460,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-limited-late-model-series.png"
     },
     {
       "name": "Big Block Modified Series",
@@ -32647,7 +32765,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/big-block-modified-series.png"
     },
     {
       "name": "Big Block Modified Series - Fixed",
@@ -32951,7 +33070,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 50
         }
-      ]
+      ],
+      "logo_url": "logos/championships/big-block-modified-series-fixed.png"
     },
     {
       "name": "Dirt 410 Sprint Car Tour - 2026 Season Fixed",
@@ -33622,7 +33742,8 @@
           "date_end": "2026-11-10",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirt-410-sprint-car-tour-2026-season-fixed.png"
     },
     {
       "name": "Dirt Midget Cup",
@@ -33926,7 +34047,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirt-midget-cup-fixed.png"
     },
     {
       "name": "Dirt Midget Cup - Fixed",
@@ -34230,7 +34352,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirt-midget-cup-fixed.png"
     },
     {
       "name": "Dirt Super Late Model Tour - 2026 Season Fixed",
@@ -34915,7 +35038,8 @@
           "date_end": "2026-11-09",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirt-super-late-model-tour-2026-season-fixed.png"
     },
     {
       "name": "DIRTcar 360 Sprint Car Series",
@@ -35219,7 +35343,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-360-sprint-car-series.png"
     },
     {
       "name": "DIRTcar 360 Sprint Car Series - Fixed 2026 Season 3",
@@ -35523,7 +35648,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-360-sprint-car-series-fixed-2026-season-3.png"
     },
     {
       "name": "DIRTcar Class C Dirt Street Stock Series",
@@ -35827,7 +35953,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-class-c-dirt-street-stock-series.png"
     },
     {
       "name": "DIRTcar Pro Late Model Series",
@@ -36131,7 +36258,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-pro-late-model-series.png"
     },
     {
       "name": "DIRTcar Pro Late Model Series - Fixed",
@@ -36435,7 +36563,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-pro-late-model-series-fixed.png"
     },
     {
       "name": "DIRTcar UMP Modified Series - Fixed",
@@ -36739,7 +36868,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-ump-modified-series-fixed.png"
     },
     {
       "name": "Outlaw Micro Showdown",
@@ -37043,7 +37173,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/outlaw-micro-showdown.png"
     },
     {
       "name": "USAC 360 Sprint Car Series",
@@ -37347,7 +37478,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/usac-360-sprint-car-series.png"
     },
     {
       "name": "AMSOIL USAC Sprint Car 2026 - Season 3",
@@ -37651,7 +37783,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/amsoil-usac-sprint-car-2026-season-3.png"
     },
     {
       "name": "DIRTcar UMP Modified Series",
@@ -37955,7 +38088,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dirtcar-ump-modified-series.png"
     },
     {
       "name": "World of Outlaws Late Model Series",
@@ -38259,7 +38393,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 30
         }
-      ]
+      ],
+      "logo_url": "logos/championships/world-of-outlaws-late-model-series.png"
     },
     {
       "name": "World of Outlaws Sprint Car Series",
@@ -38563,7 +38698,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": 25
         }
-      ]
+      ],
+      "logo_url": "logos/championships/world-of-outlaws-sprint-car-series.png"
     },
     {
       "name": "FIA Cross Car Championship",
@@ -39059,7 +39195,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/fia-cross-car-championship.png"
     },
     {
       "name": "Pro 2 Lite Off-Road Rookie Series by Trak Racer",
@@ -39555,7 +39692,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/pro-2-lite-off-road-rookie-series-by-trak-racer.png"
     },
     {
       "name": "VW Lite iRX Rookie Series by Trak Racer",
@@ -39859,7 +39997,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/vw-lite-irx-rookie-series-by-trak-racer.png"
     },
     {
       "name": "Advanced Pro2 Lite Off Road Series by Trak Racer",
@@ -40163,7 +40302,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/advanced-pro2-lite-off-road-series-by-trak-racer.png"
     },
     {
       "name": "iRX Volkswagen Beetle Lite Series by Trak Racer",
@@ -40467,7 +40607,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/irx-volkswagen-beetle-lite-series-by-trak-racer.png"
     },
     {
       "name": "Pro 4 Off-Road Series - Fixed by Trak Racer",
@@ -40771,7 +40912,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/pro-4-off-road-series-fixed-by-trak-racer.png"
     },
     {
       "name": "Pro 2 Off-Road Series - Fixed by Trak Racer",
@@ -41075,7 +41217,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/pro-2-off-road-series-fixed-by-trak-racer.png"
     },
     {
       "name": "Rallycross Series - Fixed by Trak Racer",
@@ -41379,7 +41522,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/rallycross-series-fixed-by-trak-racer.png"
     },
     {
       "name": "Rallycross Series by Trak Racer",
@@ -41875,7 +42019,8 @@
           "date_end": "2026-09-07",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/rallycross-series-by-trak-racer.png"
     },
     {
       "name": "Dallara DW12 Dash",
@@ -42186,7 +42331,8 @@
           "date_end": "2026-09-14",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/dallara-dw12-dash.png"
     },
     {
       "name": "NASCAR Carburetor Cup",
@@ -42497,7 +42643,8 @@
           "date_end": "2026-09-14",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-carburetor-cup.png"
     },
     {
       "name": "NASCAR Pickup Cup",
@@ -42808,7 +42955,8 @@
           "date_end": "2026-09-14",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": "logos/championships/nascar-pickup-cup.png"
     },
     {
       "name": "2026 iRacing Knoxville Nationals Presented by SimpleTire",
@@ -43238,7 +43386,9 @@
       "date_end": "2026-07-27",
       "track_name": null,
       "track_path": null,
-      "car_class": "NASCAR  Cup Series"
+      "car_class": "NASCAR  Cup Series",
+      "link_url": null,
+      "logo_url": "logos/events/brickyard-400.png"
     },
     {
       "slug": "6hr-road-america",
@@ -43247,7 +43397,9 @@
       "date_end": "2026-07-26",
       "track_name": "Road America",
       "track_path": "/tracks/road-america/",
-      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)"
+      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)",
+      "link_url": "https://forums.iracing.com/discussion/98226/2026-iracing-road-america-6-hour-final-bop/p1/",
+      "logo_url": "logos/events/6hr-road-america.png"
     },
     {
       "slug": "knoxville-nationals",
@@ -43256,7 +43408,9 @@
       "date_end": "2026-08-09",
       "track_name": "Knoxville Raceway",
       "track_path": "/tracks/knoxville-raceway/",
-      "car_class": "410 Winged Sprint Cars"
+      "car_class": "410 Winged Sprint Cars",
+      "link_url": "https://forums.iracing.com/discussion/98227/iracing-presents-2026-knoxville-nationals/p1/",
+      "logo_url": "logos/events/knoxville-nationals.png"
     },
     {
       "slug": "portimao-1000",
@@ -43265,7 +43419,9 @@
       "date_end": "2026-08-15",
       "track_name": "Algarve International Circuit",
       "track_path": "/tracks/algarve-international-circuit/",
-      "car_class": "HPD // GT1 // GT2"
+      "car_class": "HPD // GT1 // GT2",
+      "link_url": null,
+      "logo_url": "logos/events/portimao-1000.png"
     },
     {
       "slug": "crandon-championship",
@@ -43274,7 +43430,9 @@
       "date_end": "2026-08-30",
       "track_name": "Crandon International Raceway",
       "track_path": "/tracks/crandon-international-raceway/",
-      "car_class": "Pro 4 Off-Road Truck"
+      "car_class": "Pro 4 Off-Road Truck",
+      "link_url": null,
+      "logo_url": "logos/events/crandon-championship.png"
     },
     {
       "slug": "southern-500",
@@ -43283,7 +43441,9 @@
       "date_end": "2026-09-07",
       "track_name": "Darlington Raceway",
       "track_path": "/tracks/darlington-raceway/",
-      "car_class": "NASCAR  Cup Series"
+      "car_class": "NASCAR  Cup Series",
+      "link_url": null,
+      "logo_url": "logos/events/southern-500.png"
     },
     {
       "slug": "suzuka-1000km",
@@ -43292,7 +43452,9 @@
       "date_end": "2026-09-15",
       "track_name": null,
       "track_path": null,
-      "car_class": "GT3 Class"
+      "car_class": "GT3 Class",
+      "link_url": null,
+      "logo_url": "logos/events/suzuka-1000km.png"
     },
     {
       "slug": "britcar-24hr",
@@ -43301,7 +43463,9 @@
       "date_end": "2026-09-20",
       "track_name": "Silverstone Circuit",
       "track_path": "/tracks/silverstone-circuit/",
-      "car_class": "GT3 Class \\\\ GT4 Class"
+      "car_class": "GT3 Class \\\\ GT4 Class",
+      "link_url": null,
+      "logo_url": "logos/events/britcar-24hr.png"
     },
     {
       "slug": "petit-le-mans",
@@ -43310,7 +43474,9 @@
       "date_end": "2026-09-27",
       "track_name": "Michelin RacewayRoad Atlanta",
       "track_path": "/tracks/road-atlanta/",
-      "car_class": "GTP // LMP2 // GT3 (IMSA)"
+      "car_class": "GTP // LMP2 // GT3 (IMSA)",
+      "link_url": null,
+      "logo_url": "logos/events/petit-le-mans.png"
     },
     {
       "slug": "bathurst-1000",
@@ -43319,7 +43485,9 @@
       "date_end": "2026-10-04",
       "track_name": "Mount Panorama Circuit",
       "track_path": "/tracks/mount-panorama-circuit/",
-      "car_class": "Supercars"
+      "car_class": "Supercars",
+      "link_url": null,
+      "logo_url": "logos/events/bathurst-1000.png"
     },
     {
       "slug": "indy-8hr",
@@ -43328,7 +43496,9 @@
       "date_end": "2026-10-18",
       "track_name": null,
       "track_path": null,
-      "car_class": "GT3"
+      "car_class": "GT3",
+      "link_url": null,
+      "logo_url": "logos/events/indy-8hr.png"
     },
     {
       "slug": "ff1600-festival",
@@ -43337,7 +43507,9 @@
       "date_end": "2026-10-31",
       "track_name": null,
       "track_path": null,
-      "car_class": "Ray FF1600"
+      "car_class": "Ray FF1600",
+      "link_url": null,
+      "logo_url": "logos/events/ff1600-festival.png"
     },
     {
       "slug": "homestead-championship",
@@ -43346,7 +43518,9 @@
       "date_end": "2026-11-09",
       "track_name": "",
       "track_path": "/tracks/phoenix-international-raceway/",
-      "car_class": "NASCAR  Cup Series"
+      "car_class": "NASCAR  Cup Series",
+      "link_url": null,
+      "logo_url": "logos/events/homestead-championship.png"
     },
     {
       "slug": "mountain-showdown",
@@ -43355,7 +43529,9 @@
       "date_end": "2026-11-15",
       "track_name": "Mount Panorama Circuit",
       "track_path": "/tracks/mount-panorama-circuit/",
-      "car_class": "Super Formula Lights"
+      "car_class": "Super Formula Lights",
+      "link_url": null,
+      "logo_url": "logos/events/mountain-showdown.png"
     },
     {
       "slug": "scca-runoffs",
@@ -43364,7 +43540,9 @@
       "date_end": "2026-11-21",
       "track_name": null,
       "track_path": null,
-      "car_class": "6 Classes"
+      "car_class": "6 Classes",
+      "link_url": null,
+      "logo_url": "logos/events/scca-runoffs.png"
     },
     {
       "slug": "spa-24",
@@ -43373,7 +43551,9 @@
       "date_end": "2026-07-12",
       "track_name": "Circuit de Spa-Francorchamps",
       "track_path": "/tracks/circuit-de-spa-francorchamps/",
-      "car_class": "GT3 Class"
+      "car_class": "GT3 Class",
+      "link_url": "https://forums.iracing.com/discussion/97720/2026-24-hours-of-spa-presented-by-falken/p1/",
+      "logo_url": "logos/events/spa-24.png"
     },
     {
       "slug": "winter-derby",
@@ -43382,7 +43562,9 @@
       "date_end": "2026-12-07",
       "track_name": "Five Flags Speedway",
       "track_path": "/tracks/five-flags-speedway/",
-      "car_class": "Super Late Model"
+      "car_class": "Super Late Model",
+      "link_url": null,
+      "logo_url": "logos/events/winter-derby.png"
     },
     {
       "slug": "chili-bowl",
@@ -43391,7 +43573,9 @@
       "date_end": "2026-12-20",
       "track_name": "Tulsa Expo Center",
       "track_path": "/tracks/chili-bowl/",
-      "car_class": "Dirt Midget"
+      "car_class": "Dirt Midget",
+      "link_url": null,
+      "logo_url": "logos/events/chili-bowl.png"
     },
     {
       "slug": "pcc-vir",
@@ -43400,7 +43584,9 @@
       "date_end": "2026-12-19",
       "track_name": "ViR Grand Course",
       "track_path": "/tracks/virginia-international-raceway/",
-      "car_class": "Production Car Challenge Cars"
+      "car_class": "Production Car Challenge Cars",
+      "link_url": null,
+      "logo_url": "logos/events/pcc-vir.png"
     },
     {
       "slug": "iracing-roar",
@@ -43409,7 +43595,9 @@
       "date_end": "2026-01-10",
       "track_name": "Daytona International Speedway",
       "track_path": "/tracks/daytona/",
-      "car_class": "LMP3 // GT4 // Touring Cars"
+      "car_class": "LMP3 // GT4 // Touring Cars",
+      "link_url": "https://forums.iracing.com/discussion/90576/initial-bop-2026-iracing-roar-presented-by-go-motorsports-shop/p1/",
+      "logo_url": "logos/events/iracing-roar.png"
     },
     {
       "slug": "daytona-24",
@@ -43418,7 +43606,9 @@
       "date_end": "2026-01-18",
       "track_name": "Daytona International Speedway",
       "track_path": "/tracks/daytona/",
-      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)"
+      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)",
+      "link_url": "https://forums.iracing.com/discussion/90696/initial-bop-2026-daytona-24h-powered-by-vco/p1/",
+      "logo_url": "logos/events/daytona-24.png"
     },
     {
       "slug": "daytona-500",
@@ -43427,7 +43617,9 @@
       "date_end": "2026-02-18",
       "track_name": null,
       "track_path": null,
-      "car_class": "NASCAR  Cup Series"
+      "car_class": "NASCAR  Cup Series",
+      "link_url": null,
+      "logo_url": "logos/events/daytona-500.png"
     },
     {
       "slug": "bathurst-12",
@@ -43436,7 +43628,9 @@
       "date_end": "2026-02-22",
       "track_name": "Mount Panorama Circuit",
       "track_path": "/tracks/mount-panorama-circuit/",
-      "car_class": "GT3 Class"
+      "car_class": "GT3 Class",
+      "link_url": "https://forums.iracing.com/discussion/92109/bathurst-12-hour-presented-by-rss/p1/",
+      "logo_url": "logos/events/bathurst-12.png"
     },
     {
       "slug": "sebring-12",
@@ -43445,7 +43639,9 @@
       "date_end": "2026-03-29",
       "track_name": "Sebring International Raceway",
       "track_path": "/tracks/sebring-international-raceway/",
-      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)"
+      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)",
+      "link_url": "https://forums.iracing.com/discussion/93459/2026-sebring-12-hour-powered-by-vco/p1/",
+      "logo_url": "logos/events/sebring-12.png"
     },
     {
       "slug": "imsa-classic-500",
@@ -43454,7 +43650,9 @@
       "date_end": "2026-04-11",
       "track_name": "WeatherTech Raceway Laguna Seca",
       "track_path": "/tracks/weathertech-raceway/",
-      "car_class": "Nissan GTP // Audi 90"
+      "car_class": "Nissan GTP // Audi 90",
+      "link_url": "https://forums.iracing.com/discussion/94373/2026-imsa-classic-500/p1/",
+      "logo_url": "logos/events/imsa-classic-500.png"
     },
     {
       "slug": "nurburgring-24",
@@ -43463,7 +43661,9 @@
       "date_end": "2026-05-03",
       "track_name": "N\u00fcrburgring Combined \u2013 Gesamtstrecke 24h",
       "track_path": "/tracks/nurburgring-nordschleife/",
-      "car_class": "GT3 // Porsche Cup // GT4 // TCR // BMW M2 CS Racing"
+      "car_class": "GT3 // Porsche Cup // GT4 // TCR // BMW M2 CS Racing",
+      "link_url": "https://forums.iracing.com/discussion/95079/2026-nuerburgring-24h-presented-by-thrustmaster/p1/",
+      "logo_url": "logos/events/nurburgring-24.png"
     },
     {
       "slug": "indy-500",
@@ -43472,7 +43672,9 @@
       "date_end": "2026-05-18",
       "track_name": null,
       "track_path": null,
-      "car_class": "Dallara IR-18 INDYCAR"
+      "car_class": "Dallara IR-18 INDYCAR",
+      "link_url": "https://forums.iracing.com/discussion/95240/2026-indy-500s/p1/",
+      "logo_url": "logos/events/indy-500.png"
     },
     {
       "slug": "world-600",
@@ -43481,7 +43683,9 @@
       "date_end": "2026-05-25",
       "track_name": "Charlotte Motor Speedway",
       "track_path": "/tracks/charlotte-roval/",
-      "car_class": "NASCAR  Cup Series"
+      "car_class": "NASCAR  Cup Series",
+      "link_url": "https://forums.iracing.com/categories/nascar-iracing-series-%28nis%29",
+      "logo_url": "logos/events/world-600.png"
     },
     {
       "slug": "thruxton-4hrs",
@@ -43490,7 +43694,9 @@
       "date_end": "2026-05-31",
       "track_name": "Thruxton",
       "track_path": "/tracks/thruxton-circuit/",
-      "car_class": "Touring Cars"
+      "car_class": "Touring Cars",
+      "link_url": "https://forums.iracing.com/discussion/95909/4-hours-at-thruxton/p1/",
+      "logo_url": "logos/events/thruxton-4hrs.png"
     },
     {
       "slug": "watkins-glen-6hr",
@@ -43499,7 +43705,9 @@
       "date_end": "2026-06-21",
       "track_name": "Watkins Glen International",
       "track_path": "/tracks/watkins-glen-international/",
-      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)"
+      "car_class": "GTP & HYP // LMP2 // GT3 (IMSA)",
+      "link_url": "https://forums.iracing.com/discussion/96784/2026-wakins-glen-6h-presented-by-vco/p1/",
+      "logo_url": "logos/events/watkins-glen-6hr.png"
     },
     {
       "slug": "firecracker-400",
@@ -43508,7 +43716,9 @@
       "date_end": "2026-07-06",
       "track_name": "Daytona International Speedway",
       "track_path": "/tracks/daytona/",
-      "car_class": "1987 NASCAR Cup"
+      "car_class": "1987 NASCAR Cup",
+      "link_url": null,
+      "logo_url": "logos/events/firecracker-400.png"
     }
   ]
 }
