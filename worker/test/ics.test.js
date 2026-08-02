@@ -54,7 +54,7 @@ test("buildIcs produces one UTC VEVENT per week per timeslot", () => {
   assert.equal(events.length, 2);
   const starts = events.map((e) => e.DTSTART).sort();
   assert.deepEqual(starts, ["20260107T190000Z", "20260110T143000Z"]);
-  assert.ok(events.every((e) => e.SUMMARY === "GT3 Fixed — Spa-Francorchamps"));
+  assert.ok(events.every((e) => e.SUMMARY === "GT3 Fixed — Spa-Francorchamps (W1)"));
 });
 
 test("sessions less than 24h apart shrink to half the gap as duration", () => {
