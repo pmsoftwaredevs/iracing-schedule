@@ -6,7 +6,7 @@
     "start_date": "2026-06-09",
     "end_date": "2026-08-31"
   },
-  "generated_at": "2026-08-02T07:00:30Z",
+  "generated_at": "2026-08-02T11:08:11Z",
   "championships": [
     {
       "name": "Mini Stock Rookie Series by Thrustmaster",
@@ -43375,7 +43375,8 @@
           "date_end": "2026-08-10",
           "duration_minutes": null
         }
-      ]
+      ],
+      "logo_url": null
     }
   ],
   "special_events": [
