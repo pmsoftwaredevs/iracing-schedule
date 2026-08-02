@@ -1,4 +1,6 @@
+import io
 import json
+import zipfile
 from datetime import datetime
 
 import pytest
@@ -11,11 +13,20 @@ from tools import build_cache
 
 
 class _FakeResponse:
-    def __init__(self, text: str = ""):
+    def __init__(self, text: str = "", content: bytes = b""):
         self.text = text
+        self.content = content
 
     def raise_for_status(self):
         pass
+
+
+def _zip_bytes(entries: dict[str, bytes]) -> bytes:
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        for name, data in entries.items():
+            zf.writestr(name, data)
+    return buf.getvalue()
 
 
 def _week(n: int, track: str, start: str) -> ParsedWeek:
@@ -138,3 +149,121 @@ def test_build_cache_rollover_freezes_previous_and_prunes_older(tmp_path, settin
     # The S3 file is frozen exactly as it was when it was current — never rebuilt.
     frozen_s3 = json.loads((tmp_path / "2026_s3.json").read_text())
     assert [c["name"] for c in frozen_s3["championships"]] == ["New Series"]
+
+
+def test_build_cache_fetches_matches_and_extracts_logos(tmp_path, monkeypatch):
+    season = ParsedSeason(year=2026, quarter=3, start_date=datetime(2026, 7, 7))
+    series = [_series("GT3 Fixed", [_week(1, "Charlotte", "2026-07-07")])]
+    events = [_event("firecracker-400", "Firecracker 400")]
+
+    logos_html = """
+    <h2 class="wp-block-heading">2026 Special Event Logos</h2>
+    <div class="wp-block-cover__inner-container">
+      <h2 class="wp-block-heading">2026 Special Event Logos</h2>
+      <a class="wp-block-button__link" href="https://example.invalid/events.zip">Download</a>
+    </div>
+    <div class="wp-block-cover__inner-container">
+      <h2 class="wp-block-heading">Official Series - Season 3 2026</h2>
+      <a class="wp-block-button__link" href="https://example.invalid/championships.zip">Download</a>
+    </div>
+    """
+    events_zip = _zip_bytes({"iRSE-2026-Firecracker-400.png": b"EVENTPNG"})
+    championships_zip = _zip_bytes({"Sports Car/GT3 Fixed.png": b"CHAMPPNG"})
+
+    def fake_get(url, *a, **k):
+        if url == "https://example.invalid/seasons":
+            return _FakeResponse()
+        if url == "https://example.invalid/schedule.pdf":
+            return _FakeResponse()
+        if url == "https://example.invalid/special-events":
+            return _FakeResponse()
+        if url == "https://www.iracing.com/resources/logos/":
+            return _FakeResponse(text=logos_html)
+        if url == "https://example.invalid/events.zip":
+            return _FakeResponse(content=events_zip)
+        if url == "https://example.invalid/championships.zip":
+            return _FakeResponse(content=championships_zip)
+        raise AssertionError(f"unexpected URL {url}")
+
+    monkeypatch.setattr(build_cache.httpx, "get", fake_get)
+    monkeypatch.setattr(build_cache, "parse_seasons_page", lambda html: [season])
+    monkeypatch.setattr(build_cache, "current_season", lambda seasons, as_of: season)
+    monkeypatch.setattr(build_cache, "fetch_schedule_pdf", lambda *a, **k: "fake.pdf")
+    monkeypatch.setattr(build_cache, "parse_schedule_pdf", lambda path: series)
+    monkeypatch.setattr(build_cache, "parse_special_events_page", lambda html: events)
+
+    settings = Settings(
+        seasons_page_url="https://example.invalid/seasons",
+        schedule_pdf_url="https://example.invalid/schedule.pdf",
+        special_events_page_url="https://example.invalid/special-events",
+        logos_dir=str(tmp_path / "logos"),
+    )
+    build_cache.build_cache(settings=settings, data_dir=tmp_path, schedule_cache_dir=tmp_path / "pdfs")
+
+    current = json.loads((tmp_path / "2026_s3.json").read_text())
+    event = current["special_events"][0]
+    assert event["logo_url"] == "logos/events/firecracker-400.png"
+    assert (tmp_path / "logos" / "events" / "firecracker-400.png").read_bytes() == b"EVENTPNG"
+
+    championship = current["championships"][0]
+    assert championship["logo_url"] == "logos/championships/gt3-fixed.png"
+    assert (tmp_path / "logos" / "championships" / "gt3-fixed.png").read_bytes() == b"CHAMPPNG"
+
+
+def test_extract_matched_logos_prunes_stale_files(tmp_path):
+    out_dir = tmp_path / "events"
+    out_dir.mkdir()
+    (out_dir / "stale-event.png").write_bytes(b"OLD")
+
+    zf = zipfile.ZipFile(io.BytesIO(_zip_bytes({"new-event.png": b"NEW"})))
+    urls = build_cache._extract_matched_logos(zf, {"new-event": "new-event.png"}, out_dir, lambda k: k)
+
+    assert urls == {"new-event": "logos/events/new-event.png"}
+    assert (out_dir / "new-event.png").read_bytes() == b"NEW"
+    assert not (out_dir / "stale-event.png").exists()
+
+
+def test_base_series_name_strips_trailing_fixed_marker():
+    assert build_cache._base_series_name("CARS Tour Late Model Stocks - Fixed") == "cars tour late model stocks"
+    assert build_cache._base_series_name("CARS Tour Late Model Stocks") == "cars tour late model stocks"
+    assert build_cache._base_series_name("Dirt Midget Cup Fixed") == "dirt midget cup"
+    # "Fixed" mid-name (a sponsor-style tag, not a variant suffix) is left alone.
+    assert build_cache._base_series_name("GT3 Challenge Fixed by Fanatec") == "gt3 challenge fixed by fanatec"
+
+
+def test_fixed_variant_without_its_own_logo_reuses_the_regular_variants():
+    championships = [
+        {"name": "CARS Tour Late Model Stocks", "logo_url": "logos/championships/cars-tour.png"},
+        {"name": "CARS Tour Late Model Stocks - Fixed", "logo_url": None},
+    ]
+    build_cache._share_logos_across_fixed_variants(championships)
+    assert championships[1]["logo_url"] == "logos/championships/cars-tour.png"
+
+
+def test_regular_variant_without_its_own_logo_reuses_the_fixed_variants():
+    championships = [
+        {"name": "Dirt Midget Cup", "logo_url": None},
+        {"name": "Dirt Midget Cup - Fixed", "logo_url": "logos/championships/dirt-midget-cup-fixed.png"},
+    ]
+    build_cache._share_logos_across_fixed_variants(championships)
+    assert championships[0]["logo_url"] == "logos/championships/dirt-midget-cup-fixed.png"
+
+
+def test_sharing_is_a_noop_when_neither_variant_has_a_logo_or_theres_no_sibling():
+    championships = [
+        {"name": "Some Series", "logo_url": None},
+        {"name": "Some Series - Fixed", "logo_url": None},
+        {"name": "Standalone Series", "logo_url": None},
+    ]
+    build_cache._share_logos_across_fixed_variants(championships)
+    assert all(c["logo_url"] is None for c in championships)
+
+
+def test_sharing_does_not_touch_an_already_matched_fixed_variant():
+    championships = [
+        {"name": "Some Series", "logo_url": "logos/championships/some-series.png"},
+        {"name": "Some Series - Fixed", "logo_url": "logos/championships/some-series-fixed.png"},
+    ]
+    build_cache._share_logos_across_fixed_variants(championships)
+    assert championships[0]["logo_url"] == "logos/championships/some-series.png"
+    assert championships[1]["logo_url"] == "logos/championships/some-series-fixed.png"

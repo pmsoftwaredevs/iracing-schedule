@@ -23,14 +23,19 @@ how a code referencing a pruned season decodes to an empty calendar instead of a
 error.
 """
 
+import io
 import json
 import logging
+import re
+import zipfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
 
 from pipeline.config import Settings, get_settings
+from pipeline.logo_matching import match_logos
+from pipeline.parsers.logos_page import parse_logos_page
 from pipeline.parsers.race_cadence import parse_cadence
 from pipeline.parsers.schedule_pdf import ParsedSeries, ParsedWeek, parse_schedule_pdf
 from pipeline.parsers.seasons_page import current_season, parse_seasons_page
@@ -164,6 +169,113 @@ def _reconcile(existing: list[dict], fresh: list[dict], key: str) -> list[dict]:
     return reconciled
 
 
+def _slugify(text: str) -> str:
+    """Filesystem-safe key for a championship's logo filename — unlike special
+    events, championships have no slug of their own, so one is derived from the
+    name."""
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "logo"
+
+
+def _fetch_zip(url: str) -> zipfile.ZipFile:
+    response = httpx.get(url, timeout=60.0, follow_redirects=True)
+    response.raise_for_status()
+    return zipfile.ZipFile(io.BytesIO(response.content))
+
+
+def _extract_matched_logos(
+    zf: zipfile.ZipFile,
+    matches: dict[str, str],
+    out_dir: Path,
+    key_to_filename,
+) -> dict[str, str]:
+    """Writes each matched ZIP member to `out_dir` and returns key -> URL relative
+    to docs/ (e.g. "logos/events/foo.png"). Also deletes any file left in `out_dir`
+    from a previous run whose key isn't matched this run, so a renamed/removed
+    championship or event doesn't leave a stale logo behind forever."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    urls: dict[str, str] = {}
+    keep_names: set[str] = set()
+    for key, member in matches.items():
+        ext = Path(member).suffix.lower() or ".png"
+        filename = f"{key_to_filename(key)}{ext}"
+        (out_dir / filename).write_bytes(zf.read(member))
+        urls[key] = f"logos/{out_dir.name}/{filename}"
+        keep_names.add(filename)
+    for existing in out_dir.iterdir():
+        if existing.name not in keep_names:
+            existing.unlink()
+    return urls
+
+
+_FIXED_SUFFIX_RE = re.compile(r"\s*-?\s*fixed\s*$", re.IGNORECASE)
+
+
+def _base_series_name(name: str) -> str:
+    """Strips a trailing "Fixed" marker so a series's Fixed and regular variants
+    group under one key — e.g. "CARS Tour Late Model Stocks" and "CARS Tour Late
+    Model Stocks - Fixed" both normalize to "cars tour late model stocks"."""
+    return _FIXED_SUFFIX_RE.sub("", name).strip().lower()
+
+
+def _share_logos_across_fixed_variants(championships: list[dict]) -> None:
+    """A championship's Fixed and regular variants are the same underlying series
+    with the same artwork — iRacing's logo pack usually ships only one file per
+    series, not one per variant, so fuzzy matching (pipeline/logo_matching.py)
+    naturally finds a confident match for only one of them. Reuses that same
+    already-extracted file for any sibling left without one, rather than leaving
+    it with no logo at all."""
+    groups: dict[str, list[dict]] = {}
+    for championship in championships:
+        groups.setdefault(_base_series_name(championship["name"]), []).append(championship)
+    for group in groups.values():
+        if len(group) < 2:
+            continue
+        shared_logo_url = next((c["logo_url"] for c in group if c["logo_url"]), None)
+        if shared_logo_url is None:
+            continue
+        for championship in group:
+            if not championship["logo_url"]:
+                championship["logo_url"] = shared_logo_url
+
+
+def _add_logos(settings: Settings, fresh_championships: list[dict], fresh_events: list[dict]) -> None:
+    """Best-effort: matches this run's fresh championships/events against iRacing's
+    logo-pack ZIPs (pipeline/parsers/logos_page.py, pipeline/logo_matching.py) and
+    sets each dict's `logo_url` in place. Unlike the schedule/events data itself,
+    logos are supplementary — a logos-page layout change that leaves a box
+    unfound is logged and skipped rather than failing the whole build. A
+    network-level fetch failure still propagates, same as every other fetch here."""
+    logos_response = httpx.get(settings.logos_page_url, timeout=30.0, follow_redirects=True)
+    logos_response.raise_for_status()
+    special_events_zip_url, championship_zip_url = parse_logos_page(logos_response.text)
+
+    for event in fresh_events:
+        event["logo_url"] = None
+    if special_events_zip_url:
+        zf = _fetch_zip(special_events_zip_url)
+        candidates = {e["slug"]: [e["name"], e["slug"].replace("-", " ")] for e in fresh_events}
+        matches = match_logos(candidates, zf.namelist())
+        urls = _extract_matched_logos(zf, matches, Path(settings.logos_dir) / "events", lambda slug: slug)
+        for event in fresh_events:
+            event["logo_url"] = urls.get(event["slug"])
+    else:
+        logger.warning("could not find the special-event logo pack link on %s", settings.logos_page_url)
+
+    for championship in fresh_championships:
+        championship["logo_url"] = None
+    if championship_zip_url:
+        zf = _fetch_zip(championship_zip_url)
+        candidates = {c["name"]: [c["name"]] for c in fresh_championships}
+        matches = match_logos(candidates, zf.namelist())
+        urls = _extract_matched_logos(zf, matches, Path(settings.logos_dir) / "championships", _slugify)
+        for championship in fresh_championships:
+            championship["logo_url"] = urls.get(championship["name"])
+    else:
+        logger.warning("could not find the official-series logo pack link on %s", settings.logos_page_url)
+
+    _share_logos_across_fixed_variants(fresh_championships)
+
+
 def _load_json(path: Path) -> dict | None:
     if not path.exists():
         return None
@@ -210,14 +322,18 @@ def build_cache(
     pdf_path = fetch_schedule_pdf(settings, current.year, current.quarter, cache_dir=schedule_cache_dir)
     parsed_series = parse_schedule_pdf(str(pdf_path))
     fresh_championships = [_championship_to_dict(s) for s in parsed_series]
-    existing_championships = existing_current["championships"] if existing_current else []
-    championships = _reconcile(existing_championships, fresh_championships, key="name")
-    logger.info("parsed %d championships for %s", len(championships), new_current_code)
 
     events_response = httpx.get(settings.special_events_page_url, timeout=30.0, follow_redirects=True)
     events_response.raise_for_status()
     parsed_events = parse_special_events_page(events_response.text)
     fresh_events = [_special_event_to_dict(e) for e in parsed_events]
+
+    _add_logos(settings, fresh_championships, fresh_events)
+
+    existing_championships = existing_current["championships"] if existing_current else []
+    championships = _reconcile(existing_championships, fresh_championships, key="name")
+    logger.info("parsed %d championships for %s", len(championships), new_current_code)
+
     existing_events = existing_current["special_events"] if existing_current else []
     special_events = _reconcile(existing_events, fresh_events, key="slug")
     logger.info("parsed %d special events for %s", len(special_events), new_current_code)

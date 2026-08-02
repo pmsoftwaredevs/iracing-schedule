@@ -18,9 +18,11 @@ class Settings(BaseSettings):
     seasons_page_url: str = "https://www.iracing.com/seasons/"
     schedule_pdf_url: str = "https://members-assets.iracing.com/public/schedulepdf/SeasonSchedule.pdf"
     special_events_page_url: str = "https://www.iracing.com/special-events/"
+    logos_page_url: str = "https://www.iracing.com/resources/logos/"
 
     schedule_pdf_cache_dir: str = "cache/schedules"
     data_dir: str = "docs/data"
+    logos_dir: str = "docs/logos"
 
 
 @lru_cache

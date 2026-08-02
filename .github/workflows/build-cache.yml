@@ -1,13 +1,14 @@
 name: Refresh season cache
 
-# Detects the current iRacing season and refreshes docs/data/*.json from live,
+# Detects the current iRacing season and refreshes docs/data/*.json (and the
+# matched championship/special-event logos under docs/logos/**) from live,
 # public sources (see tools/build_cache.py). A daily cadence is cheap on
 # GitHub Actions and catches a season rollover promptly; workflow_dispatch
 # allows a manual run (e.g. right after enabling Pages for the first time, or
 # to pick up a schedule correction iRacing published mid-season).
 #
-# Committing to docs/data/** is what actually publishes new data — see
-# deploy-pages.yml, which triggers on exactly that path.
+# Committing to docs/data/** or docs/logos/** is what actually publishes new
+# data — see deploy-pages.yml, which triggers on exactly that path.
 on:
   schedule:
     - cron: "17 6 * * *"
@@ -33,16 +34,16 @@ jobs:
       - name: Install pipeline dependencies
         run: pip install -e .
 
-      - name: Refresh docs/data/*.json
+      - name: Refresh docs/data/*.json and docs/logos/**
         run: python -m tools.build_cache
 
       - name: Commit changes, if any
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data
+          git add docs/data docs/logos
           if git diff --cached --quiet; then
-            echo "No changes to docs/data — nothing to commit."
+            echo "No changes to docs/data or docs/logos — nothing to commit."
             exit 0
           fi
           git commit -m "Refresh season cache"

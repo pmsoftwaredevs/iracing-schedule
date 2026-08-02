@@ -85,14 +85,14 @@ One JSON file per retained season, e.g. `docs/data/2026_s3.json`:
   "season": { "year": 2026, "quarter": 3, "code": "2026S3", "start_date": "...", "end_date": "..." },
   "generated_at": "...",
   "championships": [
-    { "name": "GT3 Fixed", "license_level": "B", "link_url": "...",
+    { "name": "GT3 Fixed", "license_level": "B", "link_url": "...", "logo_url": "logos/championships/gt3-fixed.png",
       "session_times_by_day": { "0": ["00:30", "02:30"] },
       "session_time_options": ["00:30", "02:30"],
       "typical_session_duration_minutes": 45,
       "weeks": [ { "week_number": 1, "track_name": "...", "date_start": "...", "date_end": "...", "duration_minutes": null } ] }
   ],
   "special_events": [
-    { "slug": "firecracker-400", "name": "Firecracker 400", "date_start": "...", "date_end": "...", "track_name": "...", "track_path": "...", "car_class": "..." }
+    { "slug": "firecracker-400", "name": "Firecracker 400", "date_start": "...", "date_end": "...", "track_name": "...", "track_path": "...", "car_class": "...", "link_url": "...", "logo_url": "logos/events/firecracker-400.png" }
   ]
 }
 ```
@@ -145,6 +145,34 @@ A calendar code whose season isn't in that 2-season window decodes to an
 **empty but valid** calendar — never an error — both in the picker UI and in
 the Worker's `.ics` output. This is `decodeCalendarCode`'s `inRetentionWindow`
 flag.
+
+### Links and logos
+
+`link_url` is scraped directly, not matched: a special event's is its
+section's "MORE INFO" button on iracing.com/special-events (checked to
+actually be on the `forums.iracing.com` domain before being trusted — see
+`pipeline/parsers/special_events_page.py`); a championship's comes from the
+schedule PDF's own annotation links (`pipeline/parsers/schedule_pdf.py`).
+
+`logo_url` is different: iRacing's logo packs (zips linked from
+iracing.com/resources/logos/, found by `pipeline/parsers/logos_page.py`) have
+**no id linking a file to a championship or event** — just a folder of PNGs
+named close to, but not exactly, the on-site display name (sponsor tags,
+"Fixed"/"Open" suffixes, and the odd typo appear on one side and not the
+other). `pipeline/logo_matching.py` fuzzy-matches filenames to
+championships/events via token-overlap (Jaccard) scoring, assigned
+greedily best-score-first across the whole set, with anything below a
+minimum-confidence threshold left unmatched rather than risking the wrong
+logo — no logo beats a wrong one, the same "skip rather than guess" stance
+`special_events_page.py` takes on undated events. Matched PNGs are extracted
+to `docs/logos/championships/{slugified-name}.png` and
+`docs/logos/events/{slug}.png`; both directories are pruned each run so a
+renamed or removed entry doesn't leave a stale file behind. Because matching
+runs fresh every time, `logo_url` isn't covered by the index-stability
+reconciliation above the way `name`/`slug` are — a match that's confident one
+run and just under the threshold the next (rare, since the underlying data
+barely changes) can make a logo disappear, which is an accepted tradeoff, not
+a bug.
 
 ## The Cloudflare Worker
 
@@ -218,8 +246,8 @@ own trigger:
 1. **`build-cache.yml`** — daily cron + manual dispatch. Runs
    `tools/build_cache.py`, which fetches/parses live sources, reconciles
    against the previously-committed cache (see index-stability above), prunes
-   anything outside the retention window, and commits `docs/data/**` if
-   anything changed.
+   anything outside the retention window, and commits `docs/data/**` and
+   `docs/logos/**` if anything changed.
 2. **`deploy-pages.yml`** — triggers on any push touching `docs/**`. Since
    `build-cache.yml`'s own commit touches exactly that path, a cache refresh
    automatically triggers a republish with no explicit chaining needed. Also
