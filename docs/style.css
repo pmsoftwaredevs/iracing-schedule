@@ -1061,6 +1061,38 @@ body:has(.ad-slot:not([hidden])) .page {
   padding-top: var(--consent-banner-space, 0px);
 }
 
+/* ---- FAQ / quick guide: static reference content for newcomers ---- */
+
+.faq-section {
+  margin: 2rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.faq-section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.faq-section dt {
+  font-weight: 700;
+  margin-top: 0.9rem;
+  color: var(--ink);
+}
+
+.faq-section dt:first-child { margin-top: 0; }
+
+.faq-section dd {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  max-width: 42rem;
+  line-height: 1.5;
+}
+
+.faq-section a { color: var(--green-dark); }
+
 /* ---- Footer ---- */
 
 .site-footer {
