@@ -111,6 +111,10 @@ a:hover { color: var(--green-dark); }
   border-radius: var(--radius);
   padding: 0.85rem 1rem;
   margin: 1rem 0;
+  /* Keeps the box clear of the fixed cookie-consent banner (see
+     --consent-banner-space in app.js) when it's scrolled into view via the
+     load-existing-calendar button — otherwise it lands right underneath it. */
+  scroll-margin-top: calc(var(--consent-banner-space, 0px) + 1rem);
 }
 
 .paste-code-box summary {
@@ -123,6 +127,12 @@ a:hover { color: var(--green-dark); }
 
 .paste-code-box summary::-webkit-details-marker { display: none; }
 .paste-code-box[open] summary { margin-bottom: 0.65rem; }
+
+/* Opened only via the "load existing calendar" button next to the copy-url
+   action (see .result-actions-side), on every viewport width — the native
+   <summary> stays in the DOM for accessibility but is never shown. */
+.paste-code-box > summary { display: none; }
+.paste-code-box:not([open]) { display: none; }
 
 .paste-code-row {
   display: flex;
@@ -268,7 +278,29 @@ a:hover { color: var(--green-dark); }
 
 .help-button:hover { background: var(--green); color: #fff; }
 
-.subscribe-url-box { margin: 0.6rem 0 0; }
+/* Subscribe-url details plus the load-existing-calendar button, on the
+   right, at the bottom of the panel — kept out of .result-actions so it
+   doesn't stretch the copy-url button's height. */
+.result-panel-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.result-panel-footer .icon-toggle-btn {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 50%;
+  margin-top: 0.6rem;
+  flex-shrink: 0;
+}
+
+.subscribe-url-box {
+  margin: 0.6rem 0 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
 
 .subscribe-url-box summary {
   cursor: pointer;
@@ -627,7 +659,7 @@ a:hover { color: var(--green-dark); }
 
 .tz-picker label { display: flex; align-items: center; gap: 0.5rem; }
 
-/* ---- Mobile toolbar toggles: filter / timezone / load-calendar icon buttons.
+/* ---- Mobile toolbar toggles: filter / timezone icon buttons.
    Hidden on wide viewports, where the controls they gate are shown inline. ---- */
 
 .control-toolbar-buttons {
@@ -1049,9 +1081,6 @@ body:has(.ad-slot:not([hidden])) .page {
 
   .control-row.filters-row { display: none; }
   .control-row.filters-row.is-open { display: flex; }
-
-  .paste-code-box > summary { display: none; }
-  .paste-code-box:not([open]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
