@@ -936,6 +936,12 @@ async function main() {
     script.async = true;
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(ADS_PUBLISHER_ID)}`;
     script.crossOrigin = "anonymous";
+    // Ad blockers (and any other reason the request never completes) mean
+    // this script's own load can fail outright — with nothing else to catch
+    // that, the bar below would stay visible and empty forever.
+    script.onerror = () => {
+      adSlot.hidden = true;
+    };
     document.head.appendChild(script);
     const ins = document.createElement("ins");
     ins.className = "adsbygoogle";
@@ -952,13 +958,26 @@ async function main() {
     // empty" check never fires — data-ad-status is the only reliable signal
     // that nothing was actually served, and we hide the bar in that case
     // instead of showing a blank strip pinned to the viewport.
+    let adStatusSeen = false;
     const adStatusObserver = new MutationObserver(() => {
+      adStatusSeen = true;
       adStatusObserver.disconnect();
       if (ins.dataset.adStatus === "unfilled") {
         adSlot.hidden = true;
       }
     });
     adStatusObserver.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
+
+    // Belt-and-braces timeout: if the script loaded but adsbygoogle.js never
+    // actually got around to marking the slot (blocked by a content/privacy
+    // extension rather than a hard network error, slow ad auction, etc.),
+    // don't leave an empty bar parked at the bottom of the page indefinitely.
+    setTimeout(() => {
+      if (!adStatusSeen) {
+        adStatusObserver.disconnect();
+        adSlot.hidden = true;
+      }
+    }, 4000);
   }
 
   // ---- Deep link: ?code=... (or a remembered cookie) reopens the picker pre-filled ----
