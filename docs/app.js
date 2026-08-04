@@ -105,6 +105,8 @@ const filtersRow = document.getElementById("filters-row");
 const tzToggle = document.getElementById("tz-toggle");
 const tzPicker = document.getElementById("tz-picker");
 const calendarCodeToggle = document.getElementById("calendar-code-toggle");
+const introBox = document.getElementById("intro-box");
+const introBoxDismiss = document.getElementById("intro-box-dismiss");
 
 async function fetchJson(path) {
   const response = await fetch(path, { cache: "no-cache" });
@@ -447,6 +449,9 @@ const CALENDAR_CODE_COOKIE = "ircal_code";
 const TIMEZONE_COOKIE = "ircal_timezone";
 const LICENSE_FILTER_COOKIE = "ircal_licenses";
 const CATEGORY_FILTER_COOKIE = "ircal_categories";
+// Same treatment for the "new to iRacing?" intro box's dismiss hint: once
+// consent is given, dismissing it sticks instead of reappearing every visit.
+const INTRO_BOX_COOKIE = "ircal_intro_hidden";
 const COOKIE_MAX_AGE_DAYS = 365;
 
 function setCookie(name, value, days) {
@@ -889,8 +894,16 @@ async function main() {
     clearCookie(TIMEZONE_COOKIE);
     clearCookie(LICENSE_FILTER_COOKIE);
     clearCookie(CATEGORY_FILTER_COOKIE);
+    clearCookie(INTRO_BOX_COOKIE);
     cookieConsentBanner.hidden = true;
     syncConsentBannerSpace();
+  });
+
+  // ---- Intro box ("new to iRacing?") ----
+  introBox.hidden = hasCookieConsent() && getCookie(INTRO_BOX_COOKIE) === "1";
+  introBoxDismiss.addEventListener("click", () => {
+    introBox.hidden = true;
+    if (hasCookieConsent()) setCookie(INTRO_BOX_COOKIE, "1", COOKIE_MAX_AGE_DAYS);
   });
 
   // ---- Paste-code box ----

@@ -152,6 +152,65 @@ a:hover { color: var(--green-dark); }
 
 .rollover-banner.is-unmatched { background: var(--red-wash); color: var(--red); }
 
+/* ---- Intro box: approachable "what is iRacing" pitch for newcomers,
+   dismissible and remembered (once cookies are consented to) via
+   INTRO_BOX_COOKIE in app.js. ---- */
+
+.intro-box {
+  position: relative;
+  background: var(--green-wash);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem 1.1rem;
+  margin: 1rem 0;
+}
+
+.intro-box[hidden] { display: none; }
+
+.intro-box h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  color: var(--green-dark);
+}
+
+.intro-box p {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  max-width: 40rem;
+}
+
+.intro-box-actions { text-align: right; }
+
+.intro-box-cta {
+  display: inline;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--green);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+}
+
+.intro-box-cta:hover { background: var(--green-dark); color: #fff; }
+
+.intro-box-dismiss {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.8rem;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+}
+
+.intro-box-dismiss:hover { color: var(--ink-soft); }
+
 /* ---- Result panel: live code + subscribe URL ---- */
 
 .result-panel {
