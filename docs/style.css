@@ -177,6 +177,15 @@ a:hover { color: var(--green-dark); }
 
 .intro-box[hidden] { display: none; }
 
+.intro-box-body {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.5rem;
+}
+
+.intro-box-text { flex: 1 1 20rem; }
+
 .intro-box h2 {
   margin: 0 0 0.4rem;
   font-size: 1.05rem;
@@ -184,16 +193,16 @@ a:hover { color: var(--green-dark); }
 }
 
 .intro-box p {
-  margin: 0 0 0.85rem;
+  margin: 0;
   font-size: 0.9rem;
   color: var(--ink-soft);
   max-width: 40rem;
 }
 
-.intro-box-actions { text-align: right; }
+.intro-box-actions { flex-shrink: 0; margin-left: auto; }
 
 .intro-box-cta {
-  display: inline;
+  display: inline-block;
   font-size: 0.85rem;
   font-weight: 700;
   color: #fff;
@@ -201,6 +210,7 @@ a:hover { color: var(--green-dark); }
   border-radius: var(--radius-sm);
   padding: 0.5rem 1rem;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .intro-box-cta:hover { background: var(--green-dark); color: #fff; }
