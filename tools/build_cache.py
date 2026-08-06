@@ -355,6 +355,11 @@ def build_cache(
         "championships": championships,
         "special_events": special_events,
     }
+    if existing_current and {**existing_current, "generated_at": None} == {**current_payload, "generated_at": None}:
+        # Nothing actually changed this run — keep the old timestamp so the file
+        # is byte-for-byte identical and the workflow's commit step (which diffs
+        # docs/data/**) doesn't produce a no-op "Refresh season cache" commit.
+        current_payload["generated_at"] = existing_current["generated_at"]
     _write_json(data_dir / f"{new_current_slug}.json", current_payload)
     _write_json(manifest_path, {"current": new_current_code, "previous": new_previous_code})
 

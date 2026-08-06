@@ -1,7 +1,7 @@
 import io
 import json
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -124,6 +124,40 @@ def test_build_cache_rerun_same_season_preserves_index_and_appends_new(tmp_path,
 
     current = json.loads((tmp_path / "2026_s3.json").read_text())
     assert [c["name"] for c in current["championships"]] == ["GT3 Fixed", "Formula B", "New Series"]
+
+
+def test_build_cache_rerun_with_no_real_changes_keeps_generated_at(tmp_path, settings, monkeypatch):
+    season = ParsedSeason(year=2026, quarter=3, start_date=datetime(2026, 7, 7))
+    series = [_series("GT3 Fixed")]
+    _patch_common(monkeypatch, season=season, series=series, events=[])
+    build_cache.build_cache(settings=settings, data_dir=tmp_path, schedule_cache_dir=tmp_path / "pdfs")
+    first_generated_at = json.loads((tmp_path / "2026_s3.json").read_text())["generated_at"]
+
+    # Re-run with an identical parse — only the timestamp would differ.
+    _patch_common(monkeypatch, season=season, series=series, events=[])
+    build_cache.build_cache(settings=settings, data_dir=tmp_path, schedule_cache_dir=tmp_path / "pdfs")
+
+    current = json.loads((tmp_path / "2026_s3.json").read_text())
+    assert current["generated_at"] == first_generated_at
+
+
+def test_build_cache_rerun_with_real_changes_updates_generated_at(tmp_path, settings, monkeypatch):
+    season = ParsedSeason(year=2026, quarter=3, start_date=datetime(2026, 7, 7))
+    _patch_common(monkeypatch, season=season, series=[_series("GT3 Fixed")], events=[])
+    build_cache.build_cache(settings=settings, data_dir=tmp_path, schedule_cache_dir=tmp_path / "pdfs")
+    first_generated_at = json.loads((tmp_path / "2026_s3.json").read_text())["generated_at"]
+
+    class _LaterDatetime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return super().now(tz) + timedelta(days=1)
+
+    _patch_common(monkeypatch, season=season, series=[_series("GT3 Fixed"), _series("Formula B")], events=[])
+    monkeypatch.setattr(build_cache, "datetime", _LaterDatetime)
+    build_cache.build_cache(settings=settings, data_dir=tmp_path, schedule_cache_dir=tmp_path / "pdfs")
+
+    current = json.loads((tmp_path / "2026_s3.json").read_text())
+    assert current["generated_at"] != first_generated_at
 
 
 def test_build_cache_rollover_freezes_previous_and_prunes_older(tmp_path, settings, monkeypatch):
