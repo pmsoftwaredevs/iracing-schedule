@@ -272,6 +272,34 @@ a:hover { color: var(--green-dark); }
   cursor: not-allowed;
 }
 
+/* Sits in .result-panel-footer, between the subscribe-url box and the
+   load-existing-calendar toggle — same line, no extra row height. */
+.add-to-calendar-button {
+  align-self: flex-start;
+  margin-top: 0.6rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-wash);
+  border: 1px solid var(--green);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.6rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.add-to-calendar-button:hover { background: var(--green); color: #fff; }
+
+.add-to-calendar-button.is-disabled {
+  pointer-events: none;
+  background: var(--line-strong);
+  border-color: var(--line-strong);
+  color: var(--ink-faint);
+}
+
 .help-button {
   font-family: var(--sans);
   font-size: 0.95rem;

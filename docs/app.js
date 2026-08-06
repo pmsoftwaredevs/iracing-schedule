@@ -81,6 +81,37 @@ function isRankedSeries(championship) {
   return championship.category !== "UNRANKED";
 }
 
+// "Add to my calendar" only appears where we know a scheme/link that actually
+// opens a native add-subscription flow — Android's Google Calendar app has no
+// such deep link, so it's routed through the "cid=" web flow instead (see
+// buildAddToCalendarUrl), and anything else (desktop browsers, Linux, etc.)
+// just hides the button rather than guess at an app that isn't there.
+function detectCalendarPlatform() {
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isIOS || /Mac/.test(platform)) return "apple";
+  if (/Android/.test(ua)) return "android";
+  if (/Win/.test(platform) || /Windows/.test(ua)) return "windows";
+  return null;
+}
+
+function buildAddToCalendarUrl(subscribeUrl, platform) {
+  if (platform === "apple") return subscribeUrl.replace(/^https:\/\//, "webcal://");
+  if (platform === "android") {
+    const webcalUrl = subscribeUrl.replace(/^https:\/\//, "webcal://");
+    return `https://www.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`;
+  }
+  // Outlook web has no documented query param to pre-fill the "Subscribe from
+  // web" dialog's URL field, so this just opens straight to that dialog — the
+  // click handler below copies the subscribe URL to the clipboard first so
+  // it's a paste away instead of a full manual hunt through Outlook's menus.
+  if (platform === "windows") return "https://outlook.office.com/calendar/deeplink/subscribe";
+  return null;
+}
+
+const calendarPlatform = detectCalendarPlatform();
+
 const nowIso = new Date().toISOString().slice(0, 10);
 
 const championshipsPanel = document.getElementById("championships-panel");
@@ -90,6 +121,7 @@ const slotRowTemplate = document.getElementById("slot-row-template");
 const eventCardTemplate = document.getElementById("event-card-template");
 const resultUrlEl = document.getElementById("result-url");
 const copyUrlButton = document.getElementById("copy-url-button");
+const addToCalendarButton = document.getElementById("add-to-calendar-button");
 const subscribeUrlBox = document.getElementById("subscribe-url-box");
 const filterInput = document.getElementById("filter-input");
 const filterClear = document.getElementById("filter-clear");
@@ -507,6 +539,13 @@ function recomputeCode() {
   copyUrlButton.disabled = !currentCodeHasSelections;
   subscribeUrlBox.classList.toggle("is-disabled", !currentCodeHasSelections);
   if (!currentCodeHasSelections) subscribeUrlBox.open = false;
+  if (calendarPlatform) {
+    addToCalendarButton.hidden = false;
+    addToCalendarButton.href = buildAddToCalendarUrl(resultUrlEl.textContent, calendarPlatform);
+    const disabled = !currentCodeHasSelections;
+    addToCalendarButton.classList.toggle("is-disabled", disabled);
+    addToCalendarButton.setAttribute("aria-disabled", String(disabled));
+  }
   const url = new URL(window.location.href);
   if (currentCodeHasSelections) {
     url.searchParams.set("code", code);
@@ -844,6 +883,17 @@ async function main() {
       /* clipboard unavailable — user can still select+copy the text manually */
     }
   });
+
+  // ---- Add to my calendar ----
+  if (calendarPlatform === "windows") {
+    // Outlook's subscribe dialog has no URL field to pre-fill (see
+    // buildAddToCalendarUrl), so get the URL onto the clipboard first —
+    // it's a paste away once the dialog opens, same flow as the Copy button.
+    addToCalendarButton.addEventListener("click", () => {
+      if (addToCalendarButton.classList.contains("is-disabled")) return;
+      navigator.clipboard?.writeText(resultUrlEl.textContent).catch(() => {});
+    });
+  }
 
   // A <details> element has no native "disabled" — block the toggle by
   // intercepting the click on its <summary> before it takes effect.
