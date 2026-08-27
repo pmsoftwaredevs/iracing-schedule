@@ -6,7 +6,7 @@
     "start_date": "2026-06-09",
     "end_date": "2026-08-31"
   },
-  "generated_at": "2026-08-25T08:23:27Z",
+  "generated_at": "2026-08-27T17:38:47Z",
   "championships": [
     {
       "name": "Mini Stock Rookie Series by Thrustmaster",
@@ -7137,7 +7137,7 @@
         },
         {
           "week_number": 19,
-          "track_name": "Oswego Speedway - Oval",
+          "track_name": "New Smyrna Speedway",
           "date_start": "2026-09-02",
           "date_end": "2026-09-08",
           "duration_minutes": null
