@@ -6,7 +6,7 @@
     "start_date": "2026-06-09",
     "end_date": "2026-08-31"
   },
-  "generated_at": "2026-08-27T17:38:47Z",
+  "generated_at": "2026-09-01T11:39:54Z",
   "championships": [
     {
       "name": "Mini Stock Rookie Series by Thrustmaster",
@@ -44272,7 +44272,7 @@
       "track_name": "Crandon International Raceway",
       "track_path": "/tracks/crandon-international-raceway/",
       "car_class": "Pro 4 Off-Road Truck",
-      "link_url": null,
+      "link_url": "https://forums.iracing.com/discussion/99206/2026-crandon-championship-presented-by-trak-racer/p1/",
       "logo_url": "logos/events/crandon-championship.png"
     },
     {
