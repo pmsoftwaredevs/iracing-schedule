@@ -139,6 +139,8 @@ const tzPicker = document.getElementById("tz-picker");
 const calendarCodeToggle = document.getElementById("calendar-code-toggle");
 const introBox = document.getElementById("intro-box");
 const introBoxDismiss = document.getElementById("intro-box-dismiss");
+const incompleteSeasonBanner = document.getElementById("incomplete-season-banner");
+const incompleteSeasonCount = document.getElementById("incomplete-season-count");
 
 async function fetchJson(path) {
   const response = await fetch(path, { cache: "no-cache" });
@@ -158,6 +160,33 @@ function slugForCode(code) {
 
 function formatSeasonLabel(season) {
   return `${season.year} Season ${season.quarter}`;
+}
+
+// iRacing rolls the season number over (see pipeline/parsers/seasons_page.py)
+// before it's finished publishing the new season's actual per-series
+// schedule — the evergreen schedule PDF can keep showing mostly gap-week /
+// leftover content for days (tools/build_cache.py) — so a season's
+// championship count can legitimately be a fraction of a normal season's for
+// a while. Flag that instead of letting a near-empty list look like the real
+// thing. "Expected" is simply the previous season's count: the only other
+// season this site ever retains (manifest.json's current/previous
+// retention), and the count is normally stable quarter to quarter.
+const INCOMPLETE_SEASON_RATIO = 0.65;
+
+async function checkIncompleteSeason(manifest, seasonData) {
+  if (!manifest.previous) return;
+  let previousSeasonData;
+  try {
+    previousSeasonData = await fetchJson(`data/${slugForCode(manifest.previous)}.json`);
+  } catch (e) {
+    return; // best-effort only — this check should never block or break the page
+  }
+  const expected = previousSeasonData.championships.length;
+  if (expected === 0) return;
+  const actual = seasonData.championships.length;
+  if (actual >= expected * INCOMPLETE_SEASON_RATIO) return;
+  incompleteSeasonCount.textContent = `${actual} of a typical ~${expected}`;
+  incompleteSeasonBanner.hidden = false;
 }
 
 // ---- Rendering helpers ----
@@ -713,6 +742,7 @@ async function main() {
 
   renderChampionships(seasonData);
   renderEvents(seasonData);
+  checkIncompleteSeason(manifest, seasonData);
 
   // ---- Tabs ----
   document.querySelectorAll(".tab-btn").forEach((btn) => {

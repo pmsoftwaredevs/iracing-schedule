@@ -162,6 +162,27 @@ a:hover { color: var(--green-dark); }
 
 .rollover-banner.is-unmatched { background: var(--red-wash); color: var(--red); }
 
+/* ---- Incomplete-season banner: shown when the current season's championship
+   count looks implausibly low next to the previous season's — see
+   checkIncompleteSeason in app.js. Not dismissible: it should stay visible for
+   as long as the condition holds, across visits. ---- */
+
+.incomplete-season-banner {
+  background: var(--amber-wash);
+  border: 1px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  margin: 1rem 0;
+}
+
+.incomplete-season-banner[hidden] { display: none; }
+
+.incomplete-season-banner p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--amber);
+}
+
 /* ---- Intro box: approachable "what is iRacing" pitch for newcomers,
    dismissible and remembered (once cookies are consented to) via
    INTRO_BOX_COOKIE in app.js. ---- */
