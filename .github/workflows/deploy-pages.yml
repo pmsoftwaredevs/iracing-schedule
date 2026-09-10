@@ -1,14 +1,22 @@
 name: Deploy Pages
 
-# Publishes docs/ as the GitHub Pages site. Triggers on any push touching
-# docs/** — including build-cache.yml's own commits, so a season-cache refresh
-# republishes automatically with no explicit chaining needed. Requires Pages
-# to be enabled once under Settings -> Pages -> Source: GitHub Actions.
+# Publishes docs/ as the GitHub Pages site. Triggers on any human push
+# touching docs/**, plus (via workflow_run) whenever build-cache.yml
+# completes: a push made with the default GITHUB_TOKEN — which build-cache.yml
+# uses to commit its season-cache refresh — does NOT fire other workflows'
+# `on: push` triggers (GitHub's anti-recursion rule), so without the
+# workflow_run trigger below, the bot's daily commits would silently never
+# republish the site. Confirmed via the Actions API: no "Refresh season cache"
+# commit has ever appeared in this workflow's run history. Requires Pages to
+# be enabled once under Settings -> Pages -> Source: GitHub Actions.
 on:
   push:
     branches: [main]
     paths:
       - "docs/**"
+  workflow_run:
+    workflows: ["Refresh season cache"]
+    types: [completed]
   workflow_dispatch: {}
 
 permissions:
@@ -22,12 +30,15 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       # GitHub Pages has no runtime env vars, so the AdSense publisher id and
       # the deployed Worker's base URL are baked into a generated config.js at

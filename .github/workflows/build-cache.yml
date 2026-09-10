@@ -8,7 +8,10 @@ name: Refresh season cache
 # to pick up a schedule correction iRacing published mid-season).
 #
 # Committing to docs/data/** or docs/logos/** is what actually publishes new
-# data — see deploy-pages.yml, which triggers on exactly that path.
+# data — see deploy-pages.yml, which republishes via its workflow_run trigger
+# once this workflow completes (its push-based path trigger doesn't fire for
+# this job's own commits, since they're pushed with the default GITHUB_TOKEN —
+# see the comment in deploy-pages.yml).
 on:
   schedule:
     - cron: "17 6 * * *"
