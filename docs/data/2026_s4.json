@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-09-10T11:20:10Z",
+  "generated_at": "2026-09-11T11:21:50Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -23216,13 +23216,13 @@
     },
     {
       "slug": "spa-24",
-      "name": "992 Endurance Cup",
-      "date_start": "2026-11-27",
-      "date_end": "2026-11-29",
-      "track_name": null,
-      "track_path": null,
-      "car_class": "Porsche Cup 992.2",
-      "link_url": null,
+      "name": "Spa 24HR",
+      "date_start": "2026-07-10",
+      "date_end": "2026-07-12",
+      "track_name": "Circuit de Spa-Francorchamps",
+      "track_path": "/tracks/circuit-de-spa-francorchamps/",
+      "car_class": "GT3 Class",
+      "link_url": "https://forums.iracing.com/discussion/97720/2026-24-hours-of-spa-presented-by-falken/p1/",
       "logo_url": "logos/events/spa-24.png"
     },
     {
