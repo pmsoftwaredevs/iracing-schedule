@@ -36,9 +36,14 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # For a workflow_run trigger, head_sha is the commit that was checked
+      # out when build-cache.yml STARTED — i.e. before it committed and
+      # pushed its own season-cache refresh — so it's always one commit
+      # stale. head_branch (checked out by name, not SHA) picks up main's
+      # current tip instead, which by now already includes that push.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_branch || github.sha }}
 
       # GitHub Pages has no runtime env vars, so the AdSense publisher id and
       # the deployed Worker's base URL are baked into a generated config.js at
