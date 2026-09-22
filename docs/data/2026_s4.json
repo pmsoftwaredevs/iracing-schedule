@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-09-19T10:59:44Z",
+  "generated_at": "2026-09-22T11:39:14Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -61156,7 +61156,7 @@
       "track_name": "Michelin RacewayRoad Atlanta",
       "track_path": "/tracks/road-atlanta/",
       "car_class": "GTP // LMP2 // GT3 (IMSA)",
-      "link_url": null,
+      "link_url": "https://forums.iracing.com/discussion/100400/2026-petit-le-mans-powered-by-vco/p1/",
       "logo_url": "logos/events/petit-le-mans.png"
     },
     {
