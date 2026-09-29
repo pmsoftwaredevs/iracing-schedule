@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-09-26T11:25:50Z",
+  "generated_at": "2026-09-29T12:53:53Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -62007,7 +62007,7 @@
       "track_name": "Mount Panorama Circuit",
       "track_path": "/tracks/mount-panorama-circuit/",
       "car_class": "Supercars",
-      "link_url": null,
+      "link_url": "https://forums.iracing.com/discussion/100630/2026-bathurst-1000-powered-by-next-level-racing/p1/",
       "logo_url": "logos/events/bathurst-1000.png"
     },
     {
