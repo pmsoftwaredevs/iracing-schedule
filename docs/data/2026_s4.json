@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-09-29T12:53:53Z",
+  "generated_at": "2026-10-09T13:17:52Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -33835,7 +33835,7 @@
       "weeks": [
         {
           "week_number": 1,
-          "track_name": "Charlotte Motor Speedway - Infield Road",
+          "track_name": "Charlotte Motor Speedway - Infield Road Course",
           "date_start": "2026-09-15",
           "date_end": "2026-09-21",
           "duration_minutes": 15
@@ -46252,7 +46252,7 @@
         },
         {
           "week_number": 9,
-          "track_name": "Charlotte Motor Speedway - Infield Road",
+          "track_name": "Charlotte Motor Speedway - Infield Road Course",
           "date_start": "2026-11-10",
           "date_end": "2026-11-16",
           "duration_minutes": null
