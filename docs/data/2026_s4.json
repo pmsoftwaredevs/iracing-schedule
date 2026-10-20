@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-10-17T10:44:45Z",
+  "generated_at": "2026-10-20T11:37:17Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -62714,14 +62714,14 @@
     },
     {
       "slug": "mountain-showdown",
-      "name": "SFL Mountain Showdown",
+      "name": "Mountain Showdown",
       "date_start": "2026-11-13",
       "date_end": "2026-11-15",
       "track_name": "Mount Panorama Circuit",
       "track_path": "/tracks/mount-panorama-circuit/",
       "car_class": "Super Formula Lights",
       "link_url": null,
-      "logo_url": "logos/events/mountain-showdown.png"
+      "logo_url": null
     },
     {
       "slug": "scca-runoffs",
