@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-10-20T11:37:17Z",
+  "generated_at": "2026-10-21T11:49:54Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -62629,6 +62629,60 @@
           "date_start": "2026-10-19",
           "date_end": "2026-10-25",
           "duration_minutes": 30
+        }
+      ],
+      "logo_url": null
+    },
+    {
+      "name": "World of Outlaws Pro Qualifying Series - 2026 Season - Lates",
+      "category": "DIRT OVAL",
+      "license_level": "A",
+      "cadence_text": "Races on Thursday at 8pm ET",
+      "link_url": "http://members-ng.iracing.com/web/racing/official/series-list/6622/go-racing",
+      "session_times_by_day": {
+        "3": [
+          "08:00"
+        ]
+      },
+      "session_time_options": [
+        "08:00"
+      ],
+      "typical_session_duration_minutes": null,
+      "weeks": [
+        {
+          "week_number": 1,
+          "track_name": "Oswego Speedway - Dirt",
+          "date_start": "2026-10-23",
+          "date_end": "2026-10-29",
+          "duration_minutes": null
+        },
+        {
+          "week_number": 2,
+          "track_name": "Knoxville Raceway",
+          "date_start": "2026-10-28",
+          "date_end": "2026-11-03",
+          "duration_minutes": null
+        },
+        {
+          "week_number": 3,
+          "track_name": "Huset's Speedway",
+          "date_start": "2026-11-04",
+          "date_end": "2026-11-10",
+          "duration_minutes": null
+        },
+        {
+          "week_number": 4,
+          "track_name": "Weedsport Speedway",
+          "date_start": "2026-11-11",
+          "date_end": "2026-11-17",
+          "duration_minutes": null
+        },
+        {
+          "week_number": 5,
+          "track_name": "Williams Grove Speedway",
+          "date_start": "2026-11-18",
+          "date_end": "2026-11-24",
+          "duration_minutes": null
         }
       ],
       "logo_url": null
