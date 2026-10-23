@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-10-21T11:49:54Z",
+  "generated_at": "2026-10-23T11:39:38Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -62659,29 +62659,29 @@
         {
           "week_number": 2,
           "track_name": "Knoxville Raceway",
-          "date_start": "2026-10-28",
-          "date_end": "2026-11-03",
+          "date_start": "2026-10-30",
+          "date_end": "2026-11-05",
           "duration_minutes": null
         },
         {
           "week_number": 3,
           "track_name": "Huset's Speedway",
-          "date_start": "2026-11-04",
-          "date_end": "2026-11-10",
+          "date_start": "2026-11-06",
+          "date_end": "2026-11-12",
           "duration_minutes": null
         },
         {
           "week_number": 4,
           "track_name": "Weedsport Speedway",
-          "date_start": "2026-11-11",
-          "date_end": "2026-11-17",
+          "date_start": "2026-11-13",
+          "date_end": "2026-11-19",
           "duration_minutes": null
         },
         {
           "week_number": 5,
           "track_name": "Williams Grove Speedway",
-          "date_start": "2026-11-18",
-          "date_end": "2026-11-24",
+          "date_start": "2026-11-20",
+          "date_end": "2026-11-26",
           "duration_minutes": null
         }
       ],
