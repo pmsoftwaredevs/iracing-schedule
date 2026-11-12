@@ -6,7 +6,7 @@
     "start_date": "2026-09-09",
     "end_date": "2026-12-01"
   },
-  "generated_at": "2026-11-10T14:53:09Z",
+  "generated_at": "2026-11-12T15:14:59Z",
   "championships": [
     {
       "name": "2026 Season 3 - 13th Week - Street Stock Challenge",
@@ -48236,7 +48236,7 @@
         },
         {
           "week_number": 10,
-          "track_name": "Watkins Glen International - Boot",
+          "track_name": "Watkins Glen International - Classic Boot",
           "date_start": "2026-11-17",
           "date_end": "2026-11-23",
           "duration_minutes": null
